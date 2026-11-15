@@ -1,0 +1,41 @@
+name: irace-llrp-fast
+on:
+  push:
+    branches: [irace-tuning]
+  workflow_dispatch:
+    inputs:
+      max_experiments: {description: "irace maxExperiments (minimum 300)", default: "1000"}
+      time_scale:      {description: "multiplier on per-run time caps", default: "1"}
+      seed:            {description: "irace seed", default: "1"}
+jobs:
+  tune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4                 # this branch: irace/ kit
+      - uses: actions/checkout@v4                 # the web build (WASM solver + instances/BKS)
+        with: {ref: gh-pages, path: web}
+      - name: Install R and irace 4.5.1 (CRAN mirror on GitHub)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends r-base-core r-base-dev r-cran-r6 r-cran-withr r-cran-codetools r-cran-rcpp r-cran-fs r-cran-cli r-cran-rlang r-cran-glue r-cran-lifecycle r-cran-vctrs
+          mkdir -p /tmp/src && cd /tmp/src
+          for p in matrixStats spacefillr data.table irace; do
+            git clone --depth 1 https://github.com/cran/$p
+            sudo R CMD INSTALL --no-docs $p
+          done
+          Rscript -e 'library(irace); cat("irace", as.character(packageVersion("irace")), "\n")'
+      - name: Run irace
+        env:
+          LLRP_TIME_SCALE: ${{ inputs.time_scale || '1' }}
+        run: |
+          cd irace
+          ./run_irace.sh --max-experiments ${{ inputs.max_experiments || '1000' }} --parallel $(nproc) --seed ${{ inputs.seed || '1' }} 2>&1 | tee irace_stdout.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: irace-results
+          path: |
+            irace/irace.Rdata
+            irace/irace_stdout.log
+            irace/best_configurations.csv

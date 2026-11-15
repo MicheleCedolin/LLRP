@@ -1,0 +1,6 @@
+#!/bin/bash
+# irace calls: target-runner <id_conf> <id_inst> <seed> <instance> [bound] --param value ...
+D="$(cd "$(dirname "$0")" && pwd)"
+out=$(timeout 400 node "$D/runner.js" "$@" 2>/dev/null)
+rc=$?
+if [ $rc -ne 0 ] || [ -z "$out" ]; then echo "1000 0"; else echo "$out"; fi

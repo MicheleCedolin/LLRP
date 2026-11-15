@@ -1,0 +1,3 @@
+rcl it_div it_int sel ord ils_k so_win_up so_win_down so_f1 so_f2 beta0
+5 5 3 best random 20 4 4 1.5 2.5 1.0
+8 9 5 first random 10 6 4 1.5636 2.068 1.1026
