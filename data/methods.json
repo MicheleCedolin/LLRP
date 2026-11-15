@@ -1,0 +1,815 @@
+{
+ "llrp_fast": {
+  "id": "llrp_fast",
+  "label": "GRASP + RVND + ILS + strategic oscillation (llrp_fast)",
+  "category": "Constructive hybrid",
+  "description": "The main LLRP heuristic: GRASP construction, randomised variable neighbourhood descent over the selected operators, iterated local search and strategic oscillation.",
+  "solver": "llrp_fast",
+  "time": null,
+  "params": [
+   {
+    "flag": "--rcl",
+    "label": "Restricted candidate list size",
+    "type": "i",
+    "min": 2,
+    "max": 12,
+    "default": 5
+   },
+   {
+    "flag": "--it-div",
+    "label": "Iteration divisor",
+    "type": "i",
+    "min": 2,
+    "max": 12,
+    "default": 5
+   },
+   {
+    "flag": "--it-int",
+    "label": "Iteration interval",
+    "type": "i",
+    "min": 1,
+    "max": 8,
+    "default": 3
+   },
+   {
+    "flag": "--ils",
+    "label": "ILS perturbations",
+    "type": "i",
+    "min": 5,
+    "max": 60,
+    "default": 20
+   },
+   {
+    "flag": "--so-win-up",
+    "label": "Oscillation window (up)",
+    "type": "i",
+    "min": 2,
+    "max": 10,
+    "default": 4
+   },
+   {
+    "flag": "--so-win-down",
+    "label": "Oscillation window (down)",
+    "type": "i",
+    "min": 2,
+    "max": 10,
+    "default": 4
+   },
+   {
+    "flag": "--so-f1",
+    "label": "Oscillation factor F1",
+    "type": "r",
+    "min": 1.1,
+    "max": 2.0,
+    "default": 1.5
+   },
+   {
+    "flag": "--so-f2",
+    "label": "Oscillation factor F2",
+    "type": "r",
+    "min": 2.0,
+    "max": 4.0,
+    "default": 2.5
+   },
+   {
+    "flag": "--beta0-scale",
+    "label": "Penalty scale beta0",
+    "type": "r",
+    "min": 0.1,
+    "max": 10.0,
+    "default": 1.0,
+    "log": true
+   }
+  ],
+  "choices": [
+   {
+    "flag": "--select",
+    "label": "Move selection",
+    "values": [
+     "best",
+     "first"
+    ],
+    "default": "best"
+   },
+   {
+    "flag": "--order",
+    "label": "Operator order",
+    "values": [
+     "random",
+     "fixed"
+    ],
+    "default": "random"
+   }
+  ]
+ },
+ "methods": [
+  {
+   "id": "grasp",
+   "label": "GRASP",
+   "category": "Multi-start",
+   "description": "Randomised greedy construction followed by local search, restarted.",
+   "budget": {
+    "flag": "--restarts",
+    "label": "Restarts",
+    "default": 10.0
+   },
+   "params": [],
+   "time": {
+    "t50": 0.015753,
+    "alpha": 2.317
+   },
+   "tunable": false
+  },
+  {
+   "id": "ils",
+   "label": "ILS",
+   "category": "Single trajectory",
+   "description": "Iterated local search: random shaking of strength 2, local search, improving acceptance.",
+   "budget": {
+    "flag": "--ils-iters",
+    "label": "Iterations",
+    "default": 25.0
+   },
+   "params": [
+    {
+     "flag": "--pert",
+     "label": "Perturbation strength",
+     "type": "i",
+     "min": 1.0,
+     "max": 5.0,
+     "default": 2.0,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 0.0127,
+    "alpha": 2.457
+   },
+   "tunable": true
+  },
+  {
+   "id": "vns",
+   "label": "VNS",
+   "category": "Single trajectory",
+   "description": "Basic variable neighbourhood search: shaking of strength k = 1..kmax, then local search.",
+   "budget": {
+    "flag": "--vns-iters",
+    "label": "Iterations",
+    "default": 50.0
+   },
+   "params": [
+    {
+     "flag": "--vns-kmax",
+     "label": "Maximum shaking k",
+     "type": "i",
+     "min": 3.0,
+     "max": 8.0,
+     "default": 5.0,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 0.029959,
+    "alpha": 2.456
+   },
+   "tunable": true
+  },
+  {
+   "id": "sa",
+   "label": "Simulated annealing",
+   "category": "Single trajectory",
+   "description": "Simulated annealing on feasible solutions with random moves, geometric cooling and reheating.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 4000.0
+   },
+   "params": [
+    {
+     "flag": "--sa-t0",
+     "label": "Initial temperature factor",
+     "type": "r",
+     "min": 0.02,
+     "max": 0.3,
+     "default": 0.08,
+     "log": true
+    },
+    {
+     "flag": "--sa-cool",
+     "label": "Cooling rate",
+     "type": "r",
+     "min": 0.98,
+     "max": 0.9995,
+     "default": 0.995,
+     "log": false
+    },
+    {
+     "flag": "--sa-reheat",
+     "label": "Reheat factor",
+     "type": "r",
+     "min": 0.1,
+     "max": 0.6,
+     "default": 0.35,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 0.00981,
+    "alpha": 0.469
+   },
+   "tunable": true
+  },
+  {
+   "id": "tabu",
+   "label": "Tabu search",
+   "category": "Single trajectory",
+   "description": "Solution-memory tabu search with aspiration on a randomised candidate set.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 1200.0
+   },
+   "params": [
+    {
+     "flag": "--tabu-tenure",
+     "label": "Tabu tenure",
+     "type": "i",
+     "min": 5.0,
+     "max": 60.0,
+     "default": 25.0,
+     "log": false
+    },
+    {
+     "flag": "--tabu-cands",
+     "label": "Candidates per step",
+     "type": "i",
+     "min": 10.0,
+     "max": 80.0,
+     "default": 30.0,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 0.090224,
+    "alpha": 0.389
+   },
+   "tunable": true
+  },
+  {
+   "id": "ta",
+   "label": "Threshold accepting",
+   "category": "Single trajectory",
+   "description": "Threshold accepting with a shrinking deterministic band.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 5000.0
+   },
+   "params": [
+    {
+     "flag": "--ta-frac",
+     "label": "Initial threshold factor",
+     "type": "r",
+     "min": 0.005,
+     "max": 0.1,
+     "default": 0.03,
+     "log": true
+    },
+    {
+     "flag": "--ta-decay",
+     "label": "Threshold decay",
+     "type": "r",
+     "min": 0.995,
+     "max": 0.9999,
+     "default": 0.999,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 0.011365,
+    "alpha": 0.602
+   },
+   "tunable": true
+  },
+  {
+   "id": "rtr",
+   "label": "Record-to-record travel",
+   "category": "Single trajectory",
+   "description": "Record-to-record travel. Excluded from the rc1 campaigns; kept for completeness.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 5000.0
+   },
+   "params": [
+    {
+     "flag": "--rtr-frac",
+     "label": "Initial threshold factor",
+     "type": "r",
+     "min": 0.005,
+     "max": 0.1,
+     "default": 0.02,
+     "log": true
+    },
+    {
+     "flag": "--rtr-decay",
+     "label": "Threshold decay",
+     "type": "r",
+     "min": 0.995,
+     "max": 0.9999,
+     "default": 0.999,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 0.010933,
+    "alpha": 0.794
+   },
+   "tunable": true
+  },
+  {
+   "id": "msls",
+   "label": "Multi-start local search",
+   "category": "Multi-start",
+   "description": "Multi-start local search from random priority decodes.",
+   "budget": {
+    "flag": "--starts",
+    "label": "Starts",
+    "default": 100.0
+   },
+   "params": [],
+   "time": {
+    "t50": 0.101533,
+    "alpha": 1.882
+   },
+   "tunable": false
+  },
+  {
+   "id": "alns",
+   "label": "ALNS",
+   "category": "Ruin and recreate",
+   "description": "Adaptive large neighbourhood search: 3 destroy and 2 repair operators, adaptive roulette weights, annealing acceptance.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 2500.0
+   },
+   "params": [
+    {
+     "flag": "--frac",
+     "label": "Destroyed fraction",
+     "type": "r",
+     "min": 0.1,
+     "max": 0.4,
+     "default": 0.2,
+     "log": false
+    },
+    {
+     "flag": "--reaction",
+     "label": "Adaptation reaction",
+     "type": "r",
+     "min": 0.05,
+     "max": 0.5,
+     "default": 0.2,
+     "log": false
+    },
+    {
+     "flag": "--cooling",
+     "label": "Cooling rate",
+     "type": "r",
+     "min": 0.98,
+     "max": 0.9995,
+     "default": 0.997,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 0.184639,
+    "alpha": 2.884
+   },
+   "tunable": true
+  },
+  {
+   "id": "lns",
+   "label": "LNS",
+   "category": "Ruin and recreate",
+   "description": "Large neighbourhood search with uniform choice of destroy and repair operators.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 2500.0
+   },
+   "params": [
+    {
+     "flag": "--frac",
+     "label": "Destroyed fraction",
+     "type": "r",
+     "min": 0.1,
+     "max": 0.4,
+     "default": 0.2,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 0.185686,
+    "alpha": 2.801
+   },
+   "tunable": true
+  },
+  {
+   "id": "ig",
+   "label": "Iterated greedy",
+   "category": "Ruin and recreate",
+   "description": "Iterated greedy: random removal of a fixed fraction, greedy reinsertion, optional acceptance band.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 2500.0
+   },
+   "params": [
+    {
+     "flag": "--frac",
+     "label": "Destroyed fraction",
+     "type": "r",
+     "min": 0.05,
+     "max": 0.3,
+     "default": 0.15,
+     "log": false
+    },
+    {
+     "flag": "--accept",
+     "label": "Acceptance band",
+     "type": "r",
+     "min": 0.0,
+     "max": 0.1,
+     "default": 0.0,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 0.128108,
+    "alpha": 2.558
+   },
+   "tunable": true
+  },
+  {
+   "id": "ga",
+   "label": "Genetic algorithm",
+   "category": "Population",
+   "description": "Route-decoded genetic algorithm (order crossover, depot gene), memetic with local search.",
+   "budget": {
+    "flag": "--ga-gens",
+    "label": "Generations",
+    "default": 200.0
+   },
+   "params": [
+    {
+     "flag": "--ga-pop",
+     "label": "Population size",
+     "type": "i",
+     "min": 10.0,
+     "max": 80.0,
+     "default": 30.0,
+     "log": false
+    },
+    {
+     "flag": "--ga-mut",
+     "label": "Mutation rate",
+     "type": "r",
+     "min": 0.05,
+     "max": 0.5,
+     "default": 0.25,
+     "log": false
+    },
+    {
+     "flag": "--ga-elite",
+     "label": "Elite count",
+     "type": "i",
+     "min": 1.0,
+     "max": 8.0,
+     "default": 2.0,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 6.44288,
+    "alpha": 2.155
+   },
+   "tunable": true
+  },
+  {
+   "id": "brkga",
+   "label": "BRKGA",
+   "category": "Population",
+   "description": "Biased random-key genetic algorithm with customer-priority, depot and cardinality keys.",
+   "budget": {
+    "flag": "--brkga-gens",
+    "label": "Generations",
+    "default": 250.0
+   },
+   "params": [
+    {
+     "flag": "--brkga-pop",
+     "label": "Population size",
+     "type": "i",
+     "min": 20.0,
+     "max": 100.0,
+     "default": 40.0,
+     "log": false
+    },
+    {
+     "flag": "--brkga-elite",
+     "label": "Elite fraction",
+     "type": "r",
+     "min": 0.1,
+     "max": 0.4,
+     "default": 0.2,
+     "log": false
+    },
+    {
+     "flag": "--brkga-mut",
+     "label": "Mutant fraction",
+     "type": "r",
+     "min": 0.05,
+     "max": 0.3,
+     "default": 0.1,
+     "log": false
+    },
+    {
+     "flag": "--brkga-rho",
+     "label": "Inheritance probability",
+     "type": "r",
+     "min": 0.5,
+     "max": 0.9,
+     "default": 0.7,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 7.66154,
+    "alpha": 1.696
+   },
+   "tunable": true
+  },
+  {
+   "id": "aco",
+   "label": "Ant colony (ACO)",
+   "category": "Population",
+   "description": "Ant colony optimisation with a priority decoder and customer, depot and cardinality pheromones.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 200.0
+   },
+   "params": [
+    {
+     "flag": "--aco-ants",
+     "label": "Ants per iteration",
+     "type": "i",
+     "min": 8.0,
+     "max": 40.0,
+     "default": 24.0,
+     "log": false
+    },
+    {
+     "flag": "--aco-alpha",
+     "label": "Pheromone exponent",
+     "type": "r",
+     "min": 0.5,
+     "max": 2.0,
+     "default": 1.0,
+     "log": false
+    },
+    {
+     "flag": "--aco-beta",
+     "label": "Heuristic exponent",
+     "type": "r",
+     "min": 1.0,
+     "max": 4.0,
+     "default": 2.0,
+     "log": false
+    },
+    {
+     "flag": "--aco-evap",
+     "label": "Evaporation rate",
+     "type": "r",
+     "min": 0.05,
+     "max": 0.5,
+     "default": 0.2,
+     "log": false
+    },
+    {
+     "flag": "--aco-q",
+     "label": "Deposit constant",
+     "type": "r",
+     "min": 10.0,
+     "max": 500.0,
+     "default": 100.0,
+     "log": true
+    }
+   ],
+   "time": {
+    "t50": 5.24769,
+    "alpha": 2.363
+   },
+   "tunable": true
+  },
+  {
+   "id": "grasppr",
+   "label": "GRASP with path relinking",
+   "category": "Population",
+   "description": "GRASP with an elite pool; each local optimum is relinked towards an elite solution.",
+   "budget": {
+    "flag": "--gp-starts",
+    "label": "Starts",
+    "default": 80.0
+   },
+   "params": [
+    {
+     "flag": "--gp-elite",
+     "label": "Elite pool size",
+     "type": "i",
+     "min": 2.0,
+     "max": 12.0,
+     "default": 6.0,
+     "log": false
+    },
+    {
+     "flag": "--gp-steps",
+     "label": "Relinking steps",
+     "type": "i",
+     "min": 5.0,
+     "max": 40.0,
+     "default": 20.0,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 2.99844,
+    "alpha": 2.827
+   },
+   "tunable": true
+  },
+  {
+   "id": "scatter",
+   "label": "Scatter search",
+   "category": "Population",
+   "description": "Scatter search: diversified pool, reference set and pairwise path relinking.",
+   "budget": {
+    "flag": "--sc-iters",
+    "label": "Iterations",
+    "default": 30.0
+   },
+   "params": [
+    {
+     "flag": "--sc-pool",
+     "label": "Pool size",
+     "type": "i",
+     "min": 10.0,
+     "max": 50.0,
+     "default": 24.0,
+     "log": false
+    },
+    {
+     "flag": "--sc-refset",
+     "label": "Reference set size",
+     "type": "i",
+     "min": 4.0,
+     "max": 12.0,
+     "default": 8.0,
+     "log": false
+    },
+    {
+     "flag": "--sc-steps",
+     "label": "Relinking steps",
+     "type": "i",
+     "min": 5.0,
+     "max": 40.0,
+     "default": 20.0,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 6.54923,
+    "alpha": 1.152
+   },
+   "tunable": true
+  },
+  {
+   "id": "rkrs",
+   "label": "Random-key random search",
+   "category": "Baseline",
+   "description": "Random-key random search: the decoder of BRKGA/PSO/DE without evolution (control baseline).",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 5000.0
+   },
+   "params": [],
+   "time": {
+    "t50": 4.9762,
+    "alpha": 1.906
+   },
+   "tunable": false
+  },
+  {
+   "id": "pso",
+   "label": "Particle swarm (PSO)",
+   "category": "Population",
+   "description": "Random-key particle swarm; velocity clamp 0.5 and positions wrapped modulo 1.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 250.0
+   },
+   "params": [
+    {
+     "flag": "--pso-particles",
+     "label": "Particles",
+     "type": "i",
+     "min": 10.0,
+     "max": 50.0,
+     "default": 28.0,
+     "log": false
+    },
+    {
+     "flag": "--pso-w",
+     "label": "Inertia weight",
+     "type": "r",
+     "min": 0.4,
+     "max": 0.9,
+     "default": 0.72,
+     "log": false
+    },
+    {
+     "flag": "--pso-c1",
+     "label": "Cognitive coefficient",
+     "type": "r",
+     "min": 0.5,
+     "max": 2.5,
+     "default": 1.45,
+     "log": false
+    },
+    {
+     "flag": "--pso-c2",
+     "label": "Social coefficient",
+     "type": "r",
+     "min": 0.5,
+     "max": 2.5,
+     "default": 1.45,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 4.83285,
+    "alpha": 2.449
+   },
+   "tunable": true
+  },
+  {
+   "id": "de",
+   "label": "Differential evolution (DE)",
+   "category": "Population",
+   "description": "Random-key differential evolution, DE/rand/1/bin.",
+   "budget": {
+    "flag": "--iters",
+    "label": "Iterations",
+    "default": 250.0
+   },
+   "params": [
+    {
+     "flag": "--de-pop",
+     "label": "Population size",
+     "type": "i",
+     "min": 15.0,
+     "max": 60.0,
+     "default": 30.0,
+     "log": false
+    },
+    {
+     "flag": "--de-f",
+     "label": "Scale factor F",
+     "type": "r",
+     "min": 0.4,
+     "max": 1.0,
+     "default": 0.7,
+     "log": false
+    },
+    {
+     "flag": "--de-cr",
+     "label": "Crossover rate",
+     "type": "r",
+     "min": 0.3,
+     "max": 1.0,
+     "default": 0.85,
+     "log": false
+    }
+   ],
+   "time": {
+    "t50": 6.06744,
+    "alpha": 2.267
+   },
+   "tunable": true
+  }
+ ]
+}

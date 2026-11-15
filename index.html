@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLRP Solver</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <h1>LLRP Solver</h1>
+    <p class="lede">Run latency location-routing heuristics in your browser. No installation, no Python, no R.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="card" id="sec-instance" aria-labelledby="h-instance">
+    <div class="step"><span>1</span><h2 id="h-instance">Choose an instance</h2></div>
+    <div class="row">
+      <label class="field grow">
+        <span>Built-in benchmark</span>
+        <select id="inst-select" aria-label="Built-in instance"></select>
+      </label>
+      <label class="field">
+        <span>Or upload your own (.inst)</span>
+        <input type="file" id="inst-file" accept=".inst,text/plain">
+      </label>
+    </div>
+    <p class="msg" id="inst-msg" role="status"></p>
+    <dl class="facts" id="inst-facts"></dl>
+  </section>
+
+  <section class="card" aria-labelledby="h-algo">
+    <div class="step"><span>2</span><h2 id="h-algo">Choose a heuristic</h2></div>
+    <div class="row">
+      <label class="field grow">
+        <span>Algorithm</span>
+        <select id="algo-select" aria-label="Algorithm"></select>
+      </label>
+    </div>
+    <p class="muted" id="algo-desc"></p>
+    <div id="algo-params" class="params"></div>
+  </section>
+
+  <section class="card" id="sec-ls" aria-labelledby="h-ls">
+    <div class="step"><span>3</span><h2 id="h-ls">Local search operators</h2></div>
+    <div id="ls-llrp" hidden>
+      <p class="muted">The operators the local search may use. Each operator scans its full neighbourhood. At least one must be selected.</p>
+      <div class="chips-actions">
+        <button type="button" class="btn ghost" data-ops="all">Select all</button>
+        <button type="button" class="btn ghost" data-ops="none">Clear</button>
+        <span class="count" id="ops-count"></span>
+      </div>
+      <div id="ops-grid" class="ops-grid"></div>
+      <div class="row">
+        <label class="field">
+          <span>Move selection</span>
+          <select id="sel-choice"></select>
+        </label>
+        <label class="field">
+          <span>Operator order</span>
+          <select id="order-choice"></select>
+        </label>
+      </div>
+    </div>
+    <div id="ls-meta" hidden>
+      <p class="muted">Local search used inside this metaheuristic. Named operators follow the rc1 neighbourhood definitions. Choose a preset or pick operators.</p>
+      <div class="row">
+        <label class="field">
+          <span>Preset</span>
+          <select id="preset-select"></select>
+        </label>
+        <label class="field">
+          <span>Descent</span>
+          <select id="descent-select">
+            <option value="first">First improvement</option>
+            <option value="vnd">Best improvement (VND)</option>
+          </select>
+        </label>
+      </div>
+      <div class="ops-grid" id="meta-ops"></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-run">
+    <div class="step"><span>4</span><h2 id="h-run">Run and estimated time</h2></div>
+    <div class="row run-row">
+      <label class="field">
+        <span>First seed</span>
+        <input type="number" id="first-seed" min="0" value="1">
+      </label>
+      <label class="field">
+        <span>Number of seeds</span>
+        <input type="number" id="seeds" min="1" max="20" value="1">
+      </label>
+      <label class="field" id="time-field">
+        <span>Time limit per run (seconds)</span>
+        <input type="number" id="time-limit" min="1" max="3600" value="30">
+      </label>
+      <div class="field estimate">
+        <span>Estimated time</span>
+        <strong id="estimate">-</strong>
+        <small class="muted" id="estimate-note"></small>
+      </div>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn primary" id="run-btn">Run</button>
+      <button type="button" class="btn" id="cancel-btn" disabled>Cancel</button>
+      <span id="status" class="status" role="status" aria-live="polite"></span>
+    </div>
+    <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-results">
+    <div class="step"><span>5</span><h2 id="h-results">Results</h2></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Seed</th><th>Cost</th><th>Gap to BKS</th><th>Wall time</th><th>Status</th></tr></thead>
+        <tbody id="results"><tr><td colspan="5" class="muted">No runs yet.</td></tr></tbody>
+      </table>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn" id="csv-btn" disabled>Download CSV</button>
+      <button type="button" class="btn" id="log-btn" disabled>Download solver log</button>
+    </div>
+    <pre id="log" class="log" hidden></pre>
+  </section>
+
+  <section class="card about" aria-labelledby="h-about">
+    <h2 id="h-about">About this solver</h2>
+    <p>The solver code is written in C++ and compiled to WebAssembly, so it runs entirely in your browser. The same sources build the command-line binaries; results are reproducible for a given seed on the same version. Costs are total latency (the sum of customer arrival times). Gap to BKS is 100 * (cost - BKS) / BKS, using the best known solution in the instance file.</p>
+    <p class="muted">Time estimates come from a fitted model on benchmark runs and are only indicative (roughly +/- 50%). Actual time depends on your device.</p>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

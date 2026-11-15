@@ -1,0 +1,143 @@
+{
+ "llrp_ops": [
+  {
+   "id": "relocate",
+   "group": "Relocate",
+   "text": "Moves a single customer within its route or into another route, forward or reversed."
+  },
+  {
+   "id": "oropt2",
+   "group": "Or-opt",
+   "text": "Moves a block of 2 consecutive customers."
+  },
+  {
+   "id": "oropt3",
+   "group": "Or-opt",
+   "text": "Moves a block of 3 consecutive customers."
+  },
+  {
+   "id": "swap11",
+   "group": "Block swap",
+   "text": "Exchanges a block of 1 customer with a block of 1 customer."
+  },
+  {
+   "id": "swap21",
+   "group": "Block swap",
+   "text": "Exchanges a block of 2 with a block of 1 customer."
+  },
+  {
+   "id": "swap22",
+   "group": "Block swap",
+   "text": "Exchanges two blocks of 2 customers."
+  },
+  {
+   "id": "swap31",
+   "group": "Block swap",
+   "text": "Exchanges a block of 3 with a block of 1 customer."
+  },
+  {
+   "id": "swap32",
+   "group": "Block swap",
+   "text": "Exchanges a block of 3 with a block of 2 customers."
+  },
+  {
+   "id": "2opt",
+   "group": "Intra-route",
+   "text": "Reverses a segment of one route."
+  },
+  {
+   "id": "2opt*",
+   "group": "Inter-route",
+   "text": "Exchanges the tails of two routes."
+  },
+  {
+   "id": "swapstar",
+   "group": "Inter-route",
+   "text": "Swaps one customer of each of two routes, each reinserted at its best position in the other route."
+  },
+  {
+   "id": "dexch",
+   "group": "Depot",
+   "text": "Two routes with different depots exchange their depots."
+  },
+  {
+   "id": "rdepot",
+   "group": "Depot",
+   "text": "Moves a route to another open depot (forward or reversed); the open-depot set is unchanged."
+  },
+  {
+   "id": "ds",
+   "group": "Depot",
+   "text": "Replaces an open depot with a closed one; its routes move with it."
+  }
+ ],
+ "meta_named": [
+  {
+   "id": "intra_relocate1",
+   "text": "Single-customer relocate inside a route."
+  },
+  {
+   "id": "inter_relocate1",
+   "text": "Single-customer relocate between routes."
+  },
+  {
+   "id": "intra_swap11",
+   "text": "Swap of two customers inside a route."
+  },
+  {
+   "id": "inter_swap11",
+   "text": "Swap of two customers between routes."
+  },
+  {
+   "id": "intra_2opt",
+   "text": "2-opt reversal inside a route."
+  },
+  {
+   "id": "depot_reassign",
+   "text": "Reassigns a route to another depot."
+  },
+  {
+   "id": "relocate",
+   "text": "Relocate (llrp5 family)."
+  },
+  {
+   "id": "swap",
+   "text": "Swap (llrp5 family)."
+  },
+  {
+   "id": "two_opt",
+   "text": "2-opt (llrp5 family)."
+  },
+  {
+   "id": "two_opt_star",
+   "text": "2-opt* tail exchange (llrp5 family)."
+  },
+  {
+   "id": "depot",
+   "text": "Depot move (llrp5 family)."
+  }
+ ],
+ "presets": {
+  "baseline_route": [
+   "intra_relocate1",
+   "inter_relocate1",
+   "intra_swap11",
+   "inter_swap11",
+   "intra_2opt"
+  ],
+  "common5": [
+   "intra_relocate1",
+   "intra_2opt",
+   "inter_relocate1",
+   "inter_swap11",
+   "depot_reassign"
+  ],
+  "llrp5": [
+   "relocate",
+   "swap",
+   "two_opt",
+   "two_opt_star",
+   "depot"
+  ]
+ }
+}
