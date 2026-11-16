@@ -4,8 +4,13 @@
 
   const $ = (id) => document.getElementById(id);
   const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
-  const LEGACY5 = ['relocate', 'swap11', '2opt', 'swap22', 'swap21'];
-  const ZOU8 = ['relocate', 'swap11', '2opt', 'oropt2', 'swap21', 'swap22', 'swapstar', 'dexch'];
+  // Operator presets taken from the cited LLRP papers (see Learn page, section 7).
+  const LIT_PRESETS = [
+    { key: 'om2023',  label: 'Osorio-Mora 2023',  ops: ['relocate', 'swap11', '2opt', '2opt*', 'dexch', 'rdepot', 'ds'] },
+    { key: 'om2023a', label: 'Osorio-Mora 2023a', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
+    { key: 'mjl2016', label: 'Moshref-Javadi 2016', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
+    { key: 'ng2022',  label: 'Nucamendi-Guillen 2022', ops: ['relocate', 'swap11', '2opt'] },
+  ];
 
   const S = {
     instances: [],
@@ -247,8 +252,9 @@
     // Preset buttons, inserted before the count label
     const actions = document.querySelector('#ls-llrp .chips-actions');
     const countEl = $('ops-count');
-    actions.insertBefore(el('button', { type: 'button', class: 'btn ghost', 'data-ops': 'legacy5', text: 'Legacy 5' }), countEl);
-    actions.insertBefore(el('button', { type: 'button', class: 'btn ghost', 'data-ops': 'zou8', text: 'Zou 8' }), countEl);
+    for (const p of LIT_PRESETS) {
+      actions.insertBefore(el('button', { type: 'button', class: 'btn ghost', 'data-ops': p.key, title: 'Operators described in ' + p.label, text: p.label }), countEl);
+    }
     grid.addEventListener('change', updateOpsCount);
     updateOpsCount();
   }
@@ -528,8 +534,10 @@
       if (!key) return;
       if (key === 'all') setLLRPOps(S.opChecks.map((c) => c.id));
       else if (key === 'none') setLLRPOps([]);
-      else if (key === 'legacy5') setLLRPOps(LEGACY5);
-      else if (key === 'zou8') setLLRPOps(ZOU8);
+      else {
+        const p = LIT_PRESETS.find((x) => x.key === key);
+        if (p) setLLRPOps(p.ops);
+      }
     });
 
     $('preset-select').addEventListener('change', (e) => applyPreset(e.target.value));

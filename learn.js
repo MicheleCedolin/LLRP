@@ -1,10 +1,10 @@
-// Learn page: operator cards, move diagrams and charts. Everything is drawn with plain SVG.
+// Learn page: operator cards, move diagrams, literature matrix and charts. Plain SVG, no libraries.
 (function () {
   'use strict';
   const NS = 'http://www.w3.org/2000/svg';
   const $ = (id) => document.getElementById(id);
 
-  // Where each llrp_fast operator comes from. "Our extension" means no direct counterpart in the cited papers.
+  // Where each llrp_fast operator comes from.
   const REF = {
     relocate: 'Insertion: Osorio-Mora et al. (2023), Sec. 3.3; Vincent et al. (2010) for the CLRP.',
     oropt2: 'Our block extension of insertion (not in the cited papers).',
@@ -22,8 +22,7 @@
     ds: 'Closest to DepotOpenClose, Osorio-Mora et al. (2023), Algorithm 3.',
   };
 
-
-  // Family colours and leading-term candidate-count models per operator.
+  // Colour families and leading-term candidate counts.
   // Assumptions: routes of average length 10, so K = n/10 routes; m = 5 depots, p = 3 open.
   const FAMILY = {
     customer: { color: '#1f5f8b', label: 'customer moves' },
@@ -31,22 +30,39 @@
     depot:    { color: '#15803d', label: 'depot moves' },
   };
   const MODEL = {
-    relocate: { fam: 'customer', f: (n) => n * n,            formula: 'n(n-1)' },
-    oropt2:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
-    oropt3:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
-    swap11:   { fam: 'customer', f: (n) => n * n / 2,        formula: 'n(n-1)/2' },
-    swap21:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
-    swap22:   { fam: 'customer', f: (n) => n * n / 2,        formula: '~ n^2/2' },
-    swap31:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
-    swap32:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
-    '2opt':   { fam: 'route',    f: (n) => 5 * n,            formula: 'K * L^2/2 = 5n' },
-    '2opt*':  { fam: 'route',    f: (n) => n * n / 2,        formula: '~ n^2/2' },
-    swapstar: { fam: 'route',    f: (n) => n * n / 2,        formula: '~ n^2/2' },
-    dexch:    { fam: 'depot',    f: (n) => n * n / 200,      formula: 'K^2/2 = n^2/200' },
-    rdepot:   { fam: 'depot',    f: (n) => n / 5,            formula: 'K(p-1) = n/5' },
-    ds:       { fam: 'depot',    f: (n) => n / 5,            formula: 'K(m-p) = n/5' },
+    relocate: { fam: 'customer', f: (n) => n * n,       formula: 'n(n-1)' },
+    oropt2:   { fam: 'customer', f: (n) => n * n,       formula: '~ n^2' },
+    oropt3:   { fam: 'customer', f: (n) => n * n,       formula: '~ n^2' },
+    swap11:   { fam: 'customer', f: (n) => n * n / 2,   formula: 'n(n-1)/2' },
+    swap21:   { fam: 'customer', f: (n) => n * n,       formula: '~ n^2' },
+    swap22:   { fam: 'customer', f: (n) => n * n / 2,   formula: '~ n^2/2' },
+    swap31:   { fam: 'customer', f: (n) => n * n,       formula: '~ n^2' },
+    swap32:   { fam: 'customer', f: (n) => n * n,       formula: '~ n^2' },
+    '2opt':   { fam: 'route',    f: (n) => 5 * n,       formula: 'K * L^2/2 = 5n' },
+    '2opt*':  { fam: 'route',    f: (n) => n * n / 2,   formula: '~ n^2/2' },
+    swapstar: { fam: 'route',    f: (n) => n * n / 2,   formula: '~ n^2/2' },
+    dexch:    { fam: 'depot',    f: (n) => n * n / 200, formula: 'K^2/2 = n^2/200' },
+    rdepot:   { fam: 'depot',    f: (n) => n / 5,       formula: 'K(p-1) = n/5' },
+    ds:       { fam: 'depot',    f: (n) => n / 5,       formula: 'K(m-p) = n/5' },
   };
 
+  // Which llrp_fast operators each cited paper describes (see Section 7 of the page).
+  const LIT_COLS = [
+    { key: 'om2023',  label: 'Osorio-Mora 2023',  ops: ['relocate', 'swap11', '2opt', '2opt*', 'dexch', 'rdepot', 'ds'] },
+    { key: 'om2023a', label: 'Osorio-Mora 2023a', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
+    { key: 'mjl2016', label: 'Moshref-Javadi 2016', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
+    { key: 'ng2022',  label: 'Nucamendi-Guillén 2022', ops: ['relocate', 'swap11', '2opt'] },
+  ];
+
+  // ---------- SVG helpers ----------
+  function el(tag, attrs, text) {
+    const e = document.createElementNS(NS, tag);
+    for (const k of Object.keys(attrs || {})) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  // ---------- operator cards and mini charts ----------
   function miniChart(op) {
     const m = MODEL[op.id];
     if (!m) return null;
@@ -75,7 +91,6 @@
     return svg;
   }
 
-  // ---------- operator cards ----------
   function renderCards(ops) {
     const box = $('op-cards');
     box.textContent = '';
@@ -102,10 +117,9 @@
       if (chart) {
         const cap = document.createElement('p');
         cap.className = 'mini-cap';
-        cap.innerHTML = '';
         cap.append(document.createTextNode('Candidates per scan: '));
         const f = document.createElement('code');
-        f.textContent = MODEL[op.id].formula;
+        f.textContent = fm.formula;
         cap.append(f);
         card.append(chart, cap);
       }
@@ -113,6 +127,7 @@
     }
   }
 
+  // ---------- named neighbourhoods ----------
   function renderNamed(named) {
     const body = $('named-body');
     body.textContent = '';
@@ -123,21 +138,64 @@
       code.textContent = op.id;
       a.append(code);
       const b = document.createElement('td');
-      b.textContent = op.text;
+      b.textContent = op.text.replace(/\s*\(llrp5 family\)/, '');
       tr.append(a, b);
       body.append(tr);
     }
   }
 
-  // ---------- SVG helpers ----------
-  function el(tag, attrs, text) {
-    const e = document.createElementNS(NS, tag);
-    for (const k of Object.keys(attrs || {})) e.setAttribute(k, attrs[k]);
-    if (text != null) e.textContent = text;
-    return e;
+  // ---------- literature matrix ----------
+  function renderMatrix(ops) {
+    const t = $('lit-matrix');
+    t.textContent = '';
+    const head = document.createElement('tr');
+    for (const txt of ['Operator', 'Family'].concat(LIT_COLS.map((c) => c.label), ['Zou 2024'])) {
+      const th = document.createElement('th');
+      th.textContent = txt;
+      head.append(th);
+    }
+    const thead = document.createElement('thead');
+    thead.append(head);
+    t.append(thead);
+    const body = document.createElement('tbody');
+    for (const op of ops) {
+      const fm = MODEL[op.id];
+      const tr = document.createElement('tr');
+      const c0 = document.createElement('td');
+      const code = document.createElement('code');
+      code.textContent = op.id;
+      c0.append(code);
+      tr.append(c0);
+      const c1 = document.createElement('td');
+      if (fm) {
+        const sw = document.createElement('span');
+        sw.className = 'swatch';
+        sw.style.setProperty('--c', FAMILY[fm.fam].color);
+        c1.append(sw, document.createTextNode(FAMILY[fm.fam].label));
+      } else {
+        c1.textContent = 'our extension';
+      }
+      tr.append(c1);
+      for (const col of LIT_COLS) {
+        const c = document.createElement('td');
+        c.className = 'tick';
+        const yes = col.ops.includes(op.id);
+        c.textContent = yes ? '✓' : '—';
+        c.setAttribute('aria-label', yes ? 'yes' : 'no');
+        if (yes) c.classList.add('yes');
+        tr.append(c);
+      }
+      const z = document.createElement('td');
+      z.className = 'tick pending';
+      z.textContent = '?';
+      z.setAttribute('aria-label', 'to be transcribed');
+      tr.append(z);
+      body.append(tr);
+    }
+    t.append(body);
   }
 
-  // Flow of the descent loop
+  // ---------- flow figure ----------
   function drawFlow() {
     const svg = $('fig-flow');
     const labels = [
@@ -162,75 +220,93 @@
         svg.append(el('line', { x1: x + W, y1: Y + H / 2, x2: x + W + GAP, y2: Y + H / 2, class: 'arrow', 'marker-end': 'url(#arr)' }));
       }
     });
-    // Loop back from "Apply" to "Next operator"
     svg.append(el('path', { d: 'M 432 90 L 432 102 L 8 102 L 8 90', fill: 'none', class: 'arrow', 'marker-end': 'url(#arr)' }));
     svg.append(el('text', { x: 220, y: 118, 'text-anchor': 'middle', class: 'lbl small' }, 'after a move, rescan from the first operator; stop when no operator improves'));
   }
 
-  // Route layout used by the move diagrams
+  // ---------- move diagrams ----------
+  // Routes: {d: depot index (0 = D1 top, 1 = D2 bottom), n: customer labels}. Route 0 is blue, route 1 orange.
+  const PW = 230; // width of one panel
   function panel(routes, moved, ox, title) {
     const g = el('g', {});
-    g.append(el('text', { x: ox + 130, y: 18, 'text-anchor': 'middle', class: 'lbl bold' }, title));
-    const dep = { x: ox + 24, y: 100 };
-    g.append(el('rect', { x: dep.x - 14, y: dep.y - 14, width: 28, height: 28, class: 'depot' }));
-    g.append(el('text', { x: dep.x, y: dep.y + 4, 'text-anchor': 'middle', class: 'lbl small' }, 'D'));
-    routes.forEach((route, r) => {
-      const row = r === 0 ? 50 : 150;
-      const pts = [[dep.x, dep.y]];
-      route.forEach((label, i) => {
-        const x = ox + 64 + 44 * i;
-        pts.push([x, row]);
-      });
-      pts.push([dep.x, dep.y]);
-      g.append(el('polyline', { points: pts.map((p) => p.join(',')).join(' '), class: r === 0 ? 'route' : 'route2', fill: 'none' }));
-      route.forEach((label, i) => {
-        const x = ox + 64 + 44 * i;
-        const isMoved = moved.includes(label);
-        g.append(el('circle', { cx: x, cy: row, r: 12, class: isMoved ? 'node hl' : 'node' }));
-        g.append(el('text', { x: x, y: row + 4, 'text-anchor': 'middle', class: 'lbl small' }, label));
+    g.append(el('text', { x: ox + PW / 2, y: 18, 'text-anchor': 'middle', class: 'lbl bold' }, title));
+    const depots = [{ x: ox + 20, y: 58, lab: 'D1' }, { x: ox + 20, y: 150, lab: 'D2' }];
+    depots.forEach((dp) => {
+      g.append(el('rect', { x: dp.x - 15, y: dp.y - 13, width: 30, height: 26, rx: 6, class: 'depot' }));
+      g.append(el('text', { x: dp.x, y: dp.y + 4, 'text-anchor': 'middle', class: 'lbl depot-lbl' }, dp.lab));
+    });
+    routes.forEach((rt, r) => {
+      const dp = depots[rt.d];
+      // two routes from the same depot are drawn on separate rows so their customers do not overlap
+      const shared = routes.filter((q) => q.d === rt.d).length > 1;
+      const row = dp.y + (shared ? (r === 0 ? -20 : 20) : 0);
+      const pts = [[dp.x + 15, row]];
+      rt.n.forEach((lab, i) => pts.push([ox + 60 + 34 * i, row]));
+      pts.push([dp.x + 15, row]);
+      g.append(el('polyline', { points: pts.map((p) => p.join(',')).join(' '), class: 'rt r' + r, fill: 'none' }));
+      rt.n.forEach((lab, i) => {
+        const cx = ox + 60 + 34 * i;
+        const hl = moved.includes(lab);
+        g.append(el('circle', { cx, cy: row, r: 12, class: hl ? 'node hl' : 'node r' + r }));
+        g.append(el('text', { x: cx, y: row + 4, 'text-anchor': 'middle', class: hl ? 'lbl hltxt' : 'lbl small' }, lab));
       });
     });
     return g;
   }
 
-  function diagram(name, before, after, moved, caption) {
-    const wrap = document.createElement('figure');
-    wrap.className = 'fig';
-    const svg = el('svg', { viewBox: '0 0 640 200', role: 'img', 'aria-label': caption });
-    svg.append(panel(before, moved, 0, 'Before'));
-    svg.append(panel(after, moved, 320, 'After'));
-    svg.append(el('line', { x1: 312, y1: 20, x2: 312, y2: 180, class: 'divider' }));
-    wrap.append(svg);
-    const fc = document.createElement('figcaption');
-    fc.textContent = name + ': ' + caption;
-    wrap.append(fc);
-    return wrap;
-  }
+  const DIAG = [
+    { op: 'relocate', name: 'Relocate', text: 'customer b leaves route 1 and is inserted into route 2.',
+      before: [{ d: 0, n: ['a', 'b', 'c'] }, { d: 1, n: ['x', 'y'] }],
+      after:  [{ d: 0, n: ['a', 'c'] }, { d: 1, n: ['x', 'b', 'y'] }], moved: ['b'] },
+    { op: 'oropt2', name: 'Or-opt 2', text: 'the block (b, c) moves into route 2.',
+      before: [{ d: 0, n: ['a', 'b', 'c', 'd'] }, { d: 1, n: ['x', 'y'] }],
+      after:  [{ d: 0, n: ['a', 'd'] }, { d: 1, n: ['x', 'b', 'c', 'y'] }], moved: ['b', 'c'] },
+    { op: 'swap11', name: 'Swap', text: 'customers b and y exchange positions across routes.',
+      before: [{ d: 0, n: ['a', 'b', 'c'] }, { d: 1, n: ['x', 'y'] }],
+      after:  [{ d: 0, n: ['a', 'y', 'c'] }, { d: 1, n: ['x', 'b'] }], moved: ['b', 'y'] },
+    { op: 'swap21', name: 'Block swap 2-1', text: 'the block (b, c) exchanges with customer z.',
+      before: [{ d: 0, n: ['a', 'b', 'c'] }, { d: 1, n: ['x', 'y', 'z'] }],
+      after:  [{ d: 0, n: ['a', 'z'] }, { d: 1, n: ['x', 'y', 'b', 'c'] }], moved: ['b', 'c', 'z'] },
+    { op: '2opt', name: '2-opt (intra-route)', text: 'the segment b to d is reversed inside route 1.',
+      before: [{ d: 0, n: ['a', 'b', 'c', 'd', 'e'] }, { d: 1, n: ['x', 'y'] }],
+      after:  [{ d: 0, n: ['a', 'd', 'c', 'b', 'e'] }, { d: 1, n: ['x', 'y'] }], moved: ['b', 'c', 'd'] },
+    { op: '2opt*', name: '2-opt* (tail exchange)', text: 'the route tails after b and after y are exchanged.',
+      before: [{ d: 0, n: ['a', 'b', 'c', 'd'] }, { d: 1, n: ['x', 'y', 'z'] }],
+      after:  [{ d: 0, n: ['a', 'b', 'z'] }, { d: 1, n: ['x', 'y', 'c', 'd'] }], moved: ['c', 'd', 'z'] },
+    { op: 'swapstar', name: 'Swap*', text: 'b and y are each reinserted at their best position in the other route.',
+      before: [{ d: 0, n: ['a', 'b', 'c'] }, { d: 1, n: ['x', 'y', 'z'] }],
+      after:  [{ d: 0, n: ['y', 'a', 'c'] }, { d: 1, n: ['x', 'z', 'b'] }], moved: ['b', 'y'] },
+    { op: 'dexch', name: 'Depot exchange', text: 'the two routes swap their starting depots.',
+      before: [{ d: 0, n: ['a', 'b', 'c'] }, { d: 1, n: ['x', 'y'] }],
+      after:  [{ d: 1, n: ['a', 'b', 'c'] }, { d: 0, n: ['x', 'y'] }], moved: [] },
+    { op: 'rdepot', name: 'Route depot move', text: 'route 2 is moved from depot D1 to depot D2.',
+      before: [{ d: 0, n: ['a', 'b', 'c'] }, { d: 0, n: ['x', 'y'] }],
+      after:  [{ d: 0, n: ['a', 'b', 'c'] }, { d: 1, n: ['x', 'y'] }], moved: ['x', 'y'] },
+  ];
 
   function renderDiagrams() {
     const box = $('diagrams');
     box.textContent = '';
-    // Relocate: customer b moves from route 1 to route 2, between x and y
-    box.append(diagram('Relocate',
-      [['a', 'b', 'c'], ['x', 'y']],
-      [['a', 'c'], ['x', 'b', 'y']],
-      ['b'],
-      'customer b leaves route 1 and is inserted into route 2.'));
-    // Swap: b and y exchange positions across routes
-    box.append(diagram('Swap',
-      [['a', 'b', 'c'], ['x', 'y']],
-      [['a', 'y', 'c'], ['x', 'b']],
-      ['b', 'y'],
-      'customers b and y exchange their positions.'));
-    // 2-opt*: tails after b (route 1) and after y (route 2) are exchanged
-    box.append(diagram('2-opt*',
-      [['a', 'b', 'c', 'd'], ['x', 'y', 'z']],
-      [['a', 'b', 'z'], ['x', 'y', 'c', 'd']],
-      ['c', 'z'],
-      'the route tails after b and after y are exchanged.'));
+    for (const d of DIAG) {
+      const fam = FAMILY[MODEL[d.op].fam];
+      const wrap = document.createElement('figure');
+      wrap.className = 'fig diag';
+      wrap.style.borderTop = '4px solid ' + fam.color;
+      const svg = el('svg', { viewBox: '0 0 ' + (2 * PW) + ' 200', role: 'img', 'aria-label': d.name + ': ' + d.text });
+      svg.append(panel(d.before, d.moved, 0, 'Before'));
+      svg.append(panel(d.after, d.moved, PW, 'After'));
+      svg.append(el('line', { x1: PW, y1: 14, x2: PW, y2: 186, class: 'divider' }));
+      wrap.append(svg);
+      const fc = document.createElement('figcaption');
+      const b = document.createElement('strong');
+      b.textContent = d.name + ' (' + d.op + '): ';
+      fc.append(b, document.createTextNode(d.text));
+      wrap.append(fc);
+      box.append(wrap);
+    }
   }
 
-  // ---------- charts ----------
+  // ---------- candidate chart ----------
   function axisChart(svgId, opts) {
     const svg = $(svgId);
     svg.textContent = '';
@@ -238,7 +314,6 @@
     const pw = W - L - R, ph = H - T - B;
     const x = (v) => L + ((v - opts.xmin) / (opts.xmax - opts.xmin)) * pw;
     const y = (v) => T + ph - (v / opts.ymax) * ph;
-    // grid and y ticks
     for (let k = 0; k <= 4; k++) {
       const v = (opts.ymax * k) / 4;
       svg.append(el('line', { x1: L, y1: y(v), x2: W - R, y2: y(v), class: 'grid' }));
@@ -250,14 +325,11 @@
     svg.append(el('line', { x1: L, y1: T + ph, x2: W - R, y2: T + ph, class: 'axis' }));
     svg.append(el('line', { x1: L, y1: T, x2: L, y2: T + ph, class: 'axis' }));
     svg.append(el('text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'lbl' }, opts.xlabel));
-    const yl = el('text', { x: 14, y: T + ph / 2, 'text-anchor': 'middle', class: 'lbl', transform: 'rotate(-90 14 ' + (T + ph / 2) + ')' }, opts.ylabel);
-    svg.append(yl);
-    // series
+    svg.append(el('text', { x: 16, y: T + ph / 2, 'text-anchor': 'middle', class: 'lbl small', transform: 'rotate(-90 16 ' + (T + ph / 2) + ')' }, opts.ylabel));
     opts.series.forEach((s, idx) => {
       const pts = [];
       for (let v = opts.xmin; v <= opts.xmax; v += 1) pts.push(x(v) + ',' + y(s.f(v)));
       svg.append(el('polyline', { points: pts.join(' '), fill: 'none', class: 'series s' + idx }));
-      // legend
       const lx = L + idx * 170, ly = 14;
       svg.append(el('line', { x1: lx, y1: ly, x2: lx + 18, y2: ly, class: 'series s' + idx }));
       svg.append(el('text', { x: lx + 24, y: ly + 4, class: 'lbl small' }, s.name));
@@ -277,23 +349,6 @@
     });
   }
 
-  function drawPresets(counts) {
-    const svg = $('chart-presets');
-    svg.textContent = '';
-    const W = 400, H = 260, L = 118, R = 26, T = 14, B = 14;
-    const pw = W - L - R;
-    const max = Math.max(...counts.map((c) => c.n));
-    counts.forEach((c, i) => {
-      const y = T + i * ((H - T - B) / counts.length);
-      const bh = 26;
-      const w = (c.n / max) * pw;
-      svg.append(el('text', { x: L - 8, y: y + 18, 'text-anchor': 'end', class: 'lbl small' }, c.name));
-      svg.append(el('rect', { x: L, y: y + 2, width: w, height: bh, class: 'bar' }));
-      svg.append(el('text', { x: L + w + 6, y: y + 19, class: 'lbl small' }, String(c.n)));
-    });
-    svg.append(el('line', { x1: L, y1: T, x2: L, y2: H - B, class: 'axis' }));
-  }
-
   // ---------- init ----------
   async function init() {
     drawFlow();
@@ -303,14 +358,7 @@
       const ops = await (await fetch('data/operators.json')).json();
       renderCards(ops.llrp_ops);
       renderNamed(ops.meta_named);
-      // Named preset sizes; light and hgamp are only known by size (see the inventory note).
-      drawPresets([
-        { name: 'baseline_route', n: ops.presets.baseline_route.length },
-        { name: 'common5', n: ops.presets.common5.length },
-        { name: 'llrp5', n: ops.presets.llrp5.length },
-        { name: 'light', n: 5 },
-        { name: 'hgamp', n: 15 },
-      ]);
+      renderMatrix(ops.llrp_ops);
     } catch (e) {
       const p = document.createElement('p');
       p.className = 'error';

@@ -45,8 +45,8 @@
   </section>
 
   <section class="card" aria-labelledby="h-diagrams">
-    <div class="step"><span>4</span><h2 id="h-diagrams">What three core moves look like</h2></div>
-    <p class="muted">Two routes are drawn from the depot (left). Dashed highlight marks the customers involved. Each panel pair shows the routes before and after one move.</p>
+    <div class="step"><span>4</span><h2 id="h-diagrams">Core moves, step by step</h2></div>
+    <p class="muted">Two routes are drawn from their depots (D1 top, D2 bottom); route 1 is blue, route 2 is orange. Gold nodes are the customers involved. Each figure shows the routes before (left) and after (right) one move.</p>
     <div id="diagrams" class="diagrams"></div>
   </section>
 
@@ -58,12 +58,6 @@
       <figcaption id="chart-candidates-t">Approximate candidate moves per full scan versus n. Relocate: n(n-1). Swap of two customers: n(n-1)/2. The 2-opt* and Swap* counts (about n^2/2) lie on the swap curve, so they are not drawn separately.</figcaption>
     </figure>
     <p class="muted">Formulas are leading terms. Exact counts depend on the number of routes and on whether a move stays inside one route.</p>
-    <h3>Operator families in the rc1 presets</h3>
-    <p>The Python rc1 kit groups its named neighbourhoods into presets. The chart shows how many named neighbourhoods each preset uses. The contents of <code>light</code> and <code>hgamp</code> are not listed here; only their sizes are known from the inventory.</p>
-    <figure class="fig">
-      <svg id="chart-presets" viewBox="0 0 400 260" role="img" aria-labelledby="chart-presets-t"></svg>
-      <figcaption id="chart-presets-t">Number of named neighbourhoods per rc1 preset.</figcaption>
-    </figure>
   </section>
 
   <section class="card" aria-labelledby="h-named">
@@ -75,31 +69,26 @@
     </table></div>
   </section>
 
+  <section class="card" aria-labelledby="h-lit">
+    <div class="step"><span>7</span><h2 id="h-lit">Which paper uses which operator</h2></div>
+    <p>The presets in the solver follow the neighbourhoods reported in the cited LLRP papers. A tick means the paper's text describes that move; a dash means it is not in the paper. Our block moves and Swap* are not in these papers.</p>
+    <div class="scroll"><table class="matrix" id="lit-matrix"></table></div>
+    <p class="muted">Osorio-Mora et al. (2023a) also list arc-swap and shift2-1, which <code>llrp_fast</code> does not implement yet. Zou et al. (2024) use seven neighbourhoods explored in a Q-learning order; their exact list is still to be transcribed from Section 2.6, so no preset is built from it yet. Ticks for Moshref-Javadi and Lee (2016) follow their description of the mutation and local-search moves, which includes inter-route effects of 2-opt.</p>
+  </section>
+
   <section class="card" aria-labelledby="h-refs">
-    <div class="step"><span>7</span><h2 id="h-refs">References</h2></div>
+    <div class="step"><span>8</span><h2 id="h-refs">References</h2></div>
     <ol class="refs">
       <li>Osorio-Mora, A. et al. (2023). Intl. Trans. in Op. Res. 30(6), 3801-3832. Section 3.3 (insertion, swap, 2-opt, arc-swap, shift2-1), Section 3.4 (VND), Algorithm 3 (random move selection with depot open/close, route swap and route relocation). <em>Author list to be checked against the PDF.</em></li>
-      <li>Osorio-Mora, O. et al. (2023a). Computers &amp; Operations Research 158, 106293. M-ILS for LLRP, MDCCVRP and MDkTRP.</li>
+      <li>Osorio-Mora, A. et al. (2023a). Computers &amp; Operations Research 158, 106293. M-ILS for LLRP, MDCCVRP and MDkTRP.</li>
       <li>Zou, J., Hao, J.-K., Wu, Q. (2024). Computers &amp; Operations Research 170, 106758. RLHEA: Q-learning guided VND and strategic oscillation.</li>
-      <li>Moshref-Javadi, M., Lee, C. (2016). European Journal of Operational Research. doi:10.1016/j.ejor.2016.05.048. Swap, 2-opt and insertion as mutation operators.</li>
-      <li>Nucamendi-Guillén, S. et al. (2022). Computers &amp; Operations Research 143, 105767. Exact methods and formulations for LLRP.</li>
+      <li>Moshref-Javadi, M., Lee, C. (2016). European Journal of Operational Research. doi:10.1016/j.ejor.2016.05.048. Swap, 2-opt and insertion as mutation and local-search operators.</li>
+      <li>Nucamendi-Guillén, S. et al. (2022). Computers &amp; Operations Research 143, 105767. Exact methods, formulations and GBILS for LLRP.</li>
       <li>Vincent et al. (2010). Insertion and swap neighbourhoods for the capacitated location-routing problem (CLRP).</li>
       <li>Kyriakakis et al. (2021). Constant-time evaluation of arc-swap and shift2-1 moves (as cited in Osorio-Mora et al., 2023). <em>Full reference to be checked.</em></li>
       <li>Lin, S., Kernighan, B. W. (1973). An effective heuristic algorithm for the traveling-salesman problem. Operations Research 21(2). 2-opt origin.</li>
     </ol>
     <p class="muted">Full bibliographic details should be verified against the PDFs before any publication. Entries marked "to be checked" have not been confirmed against the source.</p>
-  </section>
-
-  <section class="card" aria-labelledby="h-further">
-    <div class="step"><span>8</span><h2 id="h-further">Open directions from the literature</h2></div>
-    <ul class="bullets">
-      <li>Capacitated depots, which none of the cited LLRP papers treat in full (Moshref-Javadi and Lee, 2016; Nucamendi-Guillén et al., 2022).</li>
-      <li>Route duration limits, and demand or travel-time uncertainty (Nucamendi-Guillén et al., 2022).</li>
-      <li>Multi-objective trade-offs, for example latency against open depot cost (Moshref-Javadi and Lee, 2016).</li>
-      <li>Time-window LLRP and extensions to CCVRP and FLP (Osorio-Mora et al., 2023).</li>
-      <li>Learning-guided neighbourhood ordering, which Zou et al. (2024) apply with Q-learning; this is directly comparable to the RVND ordering in <code>llrp_fast</code>.</li>
-    </ul>
-    <p class="muted">Code and data availability: the 76 benchmark instances are public (Tuzun-Burke, Prodhon, Barreto). None of the five cited LLRP papers releases solver code; some state that data is available on request.</p>
   </section>
 
 </main>
