@@ -35,7 +35,13 @@
   <section class="card" aria-labelledby="h-ops">
     <div class="step"><span>3</span><h2 id="h-ops">The 14 operators of <code>llrp_fast</code></h2></div>
     <p class="muted">Each card gives the move, its origin, and the closest counterpart in the cited papers. Our block operators (<code>oropt</code>, <code>swap22</code> and the like) generalise the single-customer moves; they are our extension, not taken from the cited papers.</p>
+    <div class="family-legend" aria-label="Colour legend">
+      <span style="--c:#1f5f8b">customer moves</span>
+      <span style="--c:#c2410c">route-pair moves</span>
+      <span style="--c:#15803d">depot moves</span>
+    </div>
     <div id="op-cards" class="op-cards"></div>
+    <p class="muted">Mini charts: leading-term candidate counts per scan, with K = n/10 routes of average length 10, m = 5 depots and p = 3 open. These are counts, not run times. The 2-opt and depot formulas are linear in n; the others grow quadratically.</p>
   </section>
 
   <section class="card" aria-labelledby="h-diagrams">
@@ -48,14 +54,14 @@
     <div class="step"><span>5</span><h2 id="h-charts">How the neighbourhoods grow</h2></div>
     <p>The number of candidate moves in one full scan grows with the number of customers <em>n</em>. The chart below uses leading-term counts of candidate pairs; it shows <strong>candidate counts, not run times</strong>, because the time per candidate also depends on route lengths and on the latency bookkeeping.</p>
     <figure class="fig">
-      <svg id="chart-candidates" viewBox="0 0 640 320" role="img" aria-labelledby="chart-candidates-t"></svg>
-      <figcaption id="chart-candidates-t">Approximate candidate moves per full scan versus n. Relocate: n(n-1). Swap (single customers): n(n-1)/2. 2-opt* and Swap* (pairs across routes): about n^2/2 each.</figcaption>
+      <svg id="chart-candidates" viewBox="0 0 400 300" role="img" aria-labelledby="chart-candidates-t"></svg>
+      <figcaption id="chart-candidates-t">Approximate candidate moves per full scan versus n. Relocate: n(n-1). Swap of two customers: n(n-1)/2. The 2-opt* and Swap* counts (about n^2/2) lie on the swap curve, so they are not drawn separately.</figcaption>
     </figure>
     <p class="muted">Formulas are leading terms. Exact counts depend on the number of routes and on whether a move stays inside one route.</p>
     <h3>Operator families in the rc1 presets</h3>
     <p>The Python rc1 kit groups its named neighbourhoods into presets. The chart shows how many named neighbourhoods each preset uses. The contents of <code>light</code> and <code>hgamp</code> are not listed here; only their sizes are known from the inventory.</p>
     <figure class="fig">
-      <svg id="chart-presets" viewBox="0 0 640 260" role="img" aria-labelledby="chart-presets-t"></svg>
+      <svg id="chart-presets" viewBox="0 0 400 260" role="img" aria-labelledby="chart-presets-t"></svg>
       <figcaption id="chart-presets-t">Number of named neighbourhoods per rc1 preset.</figcaption>
     </figure>
   </section>

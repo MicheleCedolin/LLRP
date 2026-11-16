@@ -22,6 +22,59 @@
     ds: 'Closest to DepotOpenClose, Osorio-Mora et al. (2023), Algorithm 3.',
   };
 
+
+  // Family colours and leading-term candidate-count models per operator.
+  // Assumptions: routes of average length 10, so K = n/10 routes; m = 5 depots, p = 3 open.
+  const FAMILY = {
+    customer: { color: '#1f5f8b', label: 'customer moves' },
+    route:    { color: '#c2410c', label: 'route-pair moves' },
+    depot:    { color: '#15803d', label: 'depot moves' },
+  };
+  const MODEL = {
+    relocate: { fam: 'customer', f: (n) => n * n,            formula: 'n(n-1)' },
+    oropt2:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
+    oropt3:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
+    swap11:   { fam: 'customer', f: (n) => n * n / 2,        formula: 'n(n-1)/2' },
+    swap21:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
+    swap22:   { fam: 'customer', f: (n) => n * n / 2,        formula: '~ n^2/2' },
+    swap31:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
+    swap32:   { fam: 'customer', f: (n) => n * n,            formula: '~ n^2' },
+    '2opt':   { fam: 'route',    f: (n) => 5 * n,            formula: 'K * L^2/2 = 5n' },
+    '2opt*':  { fam: 'route',    f: (n) => n * n / 2,        formula: '~ n^2/2' },
+    swapstar: { fam: 'route',    f: (n) => n * n / 2,        formula: '~ n^2/2' },
+    dexch:    { fam: 'depot',    f: (n) => n * n / 200,      formula: 'K^2/2 = n^2/200' },
+    rdepot:   { fam: 'depot',    f: (n) => n / 5,            formula: 'K(p-1) = n/5' },
+    ds:       { fam: 'depot',    f: (n) => n / 5,            formula: 'K(m-p) = n/5' },
+  };
+
+  function miniChart(op) {
+    const m = MODEL[op.id];
+    if (!m) return null;
+    const fam = FAMILY[m.fam];
+    const W = 240, H = 130, L = 36, R = 8, T = 10, B = 22;
+    const pw = W - L - R, ph = H - T - B;
+    const xmin = 10, xmax = 200;
+    const ymax = Math.max(...Array.from({ length: 191 }, (_, i) => m.f(xmin + i)));
+    const stepUnit = Math.pow(10, Math.floor(Math.log10(ymax)));
+    const niceMax = Math.ceil(ymax / stepUnit) * stepUnit;
+    const x = (v) => L + ((v - xmin) / (xmax - xmin)) * pw;
+    const y = (v) => T + ph - (v / niceMax) * ph;
+    const svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': op.id + ' candidate moves versus n' });
+    svg.append(el('line', { x1: L, y1: T + ph, x2: W - R, y2: T + ph, class: 'axis' }));
+    svg.append(el('line', { x1: L, y1: T, x2: L, y2: T + ph, class: 'axis' }));
+    svg.append(el('text', { x: L - 4, y: T + 4, 'text-anchor': 'end', class: 'lbl tiny' }, niceMax >= 1000 ? (niceMax / 1000) + 'k' : String(niceMax)));
+    svg.append(el('text', { x: L - 4, y: T + ph + 3, 'text-anchor': 'end', class: 'lbl tiny' }, '0'));
+    svg.append(el('text', { x: L, y: H - 6, 'text-anchor': 'middle', class: 'lbl tiny' }, '10'));
+    svg.append(el('text', { x: W - R, y: H - 6, 'text-anchor': 'end', class: 'lbl tiny' }, '200'));
+    svg.append(el('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', class: 'lbl tiny' }, 'customers n'));
+    const pts = [];
+    for (let v = xmin; v <= xmax; v += 2) pts.push(x(v).toFixed(1) + ',' + y(m.f(v)).toFixed(1));
+    const area = 'M' + x(xmin) + ',' + (T + ph) + ' L' + pts.join(' L') + ' L' + x(xmax) + ',' + (T + ph) + ' Z';
+    svg.append(el('path', { d: area, fill: fam.color, 'fill-opacity': 0.14 }));
+    svg.append(el('polyline', { points: pts.join(' '), fill: 'none', stroke: fam.color, 'stroke-width': 2.4 }));
+    return svg;
+  }
+
   // ---------- operator cards ----------
   function renderCards(ops) {
     const box = $('op-cards');
@@ -29,6 +82,8 @@
     for (const op of ops) {
       const card = document.createElement('article');
       card.className = 'op-card';
+      const fm = MODEL[op.id];
+      if (fm) card.style.borderTop = '4px solid ' + FAMILY[fm.fam].color;
       const h = document.createElement('h3');
       const code = document.createElement('code');
       code.textContent = op.id;
@@ -43,6 +98,17 @@
       r.className = 'ref';
       r.textContent = REF[op.id] || '';
       card.append(h, p, r);
+      const chart = miniChart(op);
+      if (chart) {
+        const cap = document.createElement('p');
+        cap.className = 'mini-cap';
+        cap.innerHTML = '';
+        cap.append(document.createTextNode('Candidates per scan: '));
+        const f = document.createElement('code');
+        f.textContent = MODEL[op.id].formula;
+        cap.append(f);
+        card.append(chart, cap);
+      }
       box.append(card);
     }
   }
@@ -168,7 +234,7 @@
   function axisChart(svgId, opts) {
     const svg = $(svgId);
     svg.textContent = '';
-    const W = 640, H = 320, L = 60, R = 20, T = 20, B = 40;
+    const W = 400, H = 300, L = 72, R = 14, T = 40, B = 46;
     const pw = W - L - R, ph = H - T - B;
     const x = (v) => L + ((v - opts.xmin) / (opts.xmax - opts.xmin)) * pw;
     const y = (v) => T + ph - (v / opts.ymax) * ph;
@@ -192,7 +258,7 @@
       for (let v = opts.xmin; v <= opts.xmax; v += 1) pts.push(x(v) + ',' + y(s.f(v)));
       svg.append(el('polyline', { points: pts.join(' '), fill: 'none', class: 'series s' + idx }));
       // legend
-      const lx = L + 10 + idx * 150, ly = T + 4;
+      const lx = L + idx * 170, ly = 14;
       svg.append(el('line', { x1: lx, y1: ly, x2: lx + 18, y2: ly, class: 'series s' + idx }));
       svg.append(el('text', { x: lx + 24, y: ly + 4, class: 'lbl small' }, s.name));
     });
@@ -200,14 +266,13 @@
 
   function drawCandidates() {
     axisChart('chart-candidates', {
-      xmin: 10, xmax: 200, xstep: 30, ymax: 40000,
+      xmin: 10, xmax: 200, xstep: 50, ymax: 40000,
       xlabel: 'customers n',
-      ylabel: 'candidate moves per scan',
-      yfmt: (v) => Math.round(v).toLocaleString('en-US'),
+      ylabel: 'candidates per scan',
+      yfmt: (v) => Math.round(v / 1000) + 'k',
       series: [
         { name: 'relocate n(n-1)', f: (n) => n * (n - 1) },
         { name: 'swap n(n-1)/2', f: (n) => (n * (n - 1)) / 2 },
-        { name: '2-opt* / Swap* n^2/2', f: (n) => (n * n) / 2 },
       ],
     });
   }
@@ -215,14 +280,14 @@
   function drawPresets(counts) {
     const svg = $('chart-presets');
     svg.textContent = '';
-    const W = 640, H = 260, L = 150, R = 30, T = 20, B = 30;
+    const W = 400, H = 260, L = 118, R = 26, T = 14, B = 14;
     const pw = W - L - R;
     const max = Math.max(...counts.map((c) => c.n));
     counts.forEach((c, i) => {
       const y = T + i * ((H - T - B) / counts.length);
       const bh = 26;
       const w = (c.n / max) * pw;
-      svg.append(el('text', { x: L - 10, y: y + 18, 'text-anchor': 'end', class: 'lbl' }, c.name));
+      svg.append(el('text', { x: L - 8, y: y + 18, 'text-anchor': 'end', class: 'lbl small' }, c.name));
       svg.append(el('rect', { x: L, y: y + 2, width: w, height: bh, class: 'bar' }));
       svg.append(el('text', { x: L + w + 6, y: y + 19, class: 'lbl small' }, String(c.n)));
     });
