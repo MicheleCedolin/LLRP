@@ -1,0 +1,2 @@
+Gaskell21-5 n=21 cap=5.0s native target=5.2s budgets={'ils': 66090, 'vns': 57769, 'brkga': 1015}
+Gaskell21-5: 100 runs in 117s

@@ -1,0 +1,8 @@
+{"instance": "200-10-2-10", "method": "vns", "iter": 0, "budget": 4282, "sec": 814.33, "target": 77.25, "cost": 1978.077742374}
+{"instance": "200-10-2-10", "method": "vns", "iter": 1, "budget": 428, "sec": 148.153, "target": 77.25, "cost": 1984.996410037}
+{"instance": "200-10-2-10", "method": "brkga", "iter": 0, "budget": 240, "sec": 999.239, "target": 77.25, "cost": 1974.7853377922}
+{"instance": "200-10-2-10", "method": "vns", "iter": 2, "budget": 223, "sec": 73.161, "target": 77.25, "cost": 1991.4858474713}
+{"instance": "200-10-2-10", "method": "brkga", "iter": 1, "budget": 24, "sec": 65.22, "target": 77.25, "cost": 1983.8212003644}
+{"instance": "200-10-2-10", "method": "ils", "iter": 0, "budget": 5043, "sec": 1091.753, "target": 77.25, "cost": 1979.5724075812}
+{"instance": "200-10-2-10", "method": "brkga", "iter": 2, "budget": 28, "sec": 75.659, "target": 77.25, "cost": 1983.8212003644}
+{"instance": "200-10-2-10", "method": "ils", "iter": 1, "budget": 504, "sec": 77.523, "target": 77.25, "cost": 1982.1362720565}

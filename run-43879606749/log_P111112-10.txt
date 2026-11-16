@@ -1,0 +1,2 @@
+P111112-10 n=100 cap=30.0s native target=30.9s budgets={'ils': 3196, 'vns': 2700, 'brkga': 86}
+P111112-10: 100 runs in 938s

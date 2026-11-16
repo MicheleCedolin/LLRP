@@ -1,0 +1,2 @@
+100-5-3-5 n=100 cap=30.0s native target=30.9s budgets={'ils': 3061, 'vns': 2821, 'brkga': 93}
+100-5-3-5: 100 runs in 925s

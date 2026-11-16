@@ -1,0 +1,2 @@
+200-10-2-10 n=200 cap=75.0s native target=77.2s budgets={'ils': 504, 'vns': 223, 'brkga': 28}
+200-10-2-10: 100 runs in 2192s

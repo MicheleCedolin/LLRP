@@ -1,0 +1,8 @@
+{"instance": "100-5-3-5", "method": "vns", "iter": 0, "budget": 9398, "sec": 102.916, "target": 30.900000000000002, "cost": 1571.9847545807}
+{"instance": "100-5-3-5", "method": "vns", "iter": 1, "budget": 2821, "sec": 29.887, "target": 30.900000000000002, "cost": 1571.9847545807}
+{"instance": "100-5-3-5", "method": "ils", "iter": 0, "budget": 11078, "sec": 150.753, "target": 30.900000000000002, "cost": 1571.309308029}
+{"instance": "100-5-3-5", "method": "brkga", "iter": 0, "budget": 311, "sec": 154.504, "target": 30.900000000000002, "cost": 1582.045312154}
+{"instance": "100-5-3-5", "method": "ils", "iter": 1, "budget": 2270, "sec": 22.918, "target": 30.900000000000002, "cost": 1575.0234994586}
+{"instance": "100-5-3-5", "method": "brkga", "iter": 1, "budget": 62, "sec": 20.601, "target": 30.900000000000002, "cost": 1582.045312154}
+{"instance": "100-5-3-5", "method": "ils", "iter": 2, "budget": 3061, "sec": 29.413, "target": 30.900000000000002, "cost": 1571.7277050052}
+{"instance": "100-5-3-5", "method": "brkga", "iter": 2, "budget": 93, "sec": 30.259, "target": 30.900000000000002, "cost": 1582.045312154}

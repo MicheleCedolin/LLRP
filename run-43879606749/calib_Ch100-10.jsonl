@@ -1,0 +1,10 @@
+{"instance": "Ch100-10", "method": "ils", "iter": 0, "budget": 11078, "sec": 87.949, "target": 30.900000000000002, "cost": 3791.3166387955}
+{"instance": "Ch100-10", "method": "vns", "iter": 0, "budget": 9398, "sec": 95.025, "target": 30.900000000000002, "cost": 3788.9578093763}
+{"instance": "Ch100-10", "method": "brkga", "iter": 0, "budget": 311, "sec": 113.09, "target": 30.900000000000002, "cost": 3794.9116176139}
+{"instance": "Ch100-10", "method": "ils", "iter": 1, "budget": 3892, "sec": 34.432, "target": 30.900000000000002, "cost": 3791.3166387955}
+{"instance": "Ch100-10", "method": "vns", "iter": 1, "budget": 3056, "sec": 28.822, "target": 30.900000000000002, "cost": 3788.9578093763}
+{"instance": "Ch100-10", "method": "brkga", "iter": 1, "budget": 85, "sec": 23.817, "target": 30.900000000000002, "cost": 3794.9116176139}
+{"instance": "Ch100-10", "method": "ils", "iter": 2, "budget": 3492, "sec": 22.079, "target": 30.900000000000002, "cost": 3791.3166387955}
+{"instance": "Ch100-10", "method": "brkga", "iter": 2, "budget": 110, "sec": 25.522, "target": 30.900000000000002, "cost": 3794.9116176139}
+{"instance": "Ch100-10", "method": "ils", "iter": 3, "budget": 4888, "sec": 31.35, "target": 30.900000000000002, "cost": 3791.3166387955}
+{"instance": "Ch100-10", "method": "brkga", "iter": 3, "budget": 133, "sec": 30.845, "target": 30.900000000000002, "cost": 3794.9116176139}

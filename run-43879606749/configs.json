@@ -1,0 +1,16 @@
+{
+ "fast": {
+  "e128": "--rcl 7 --it-div 12 --it-int 6 --select first --order random --ils 15 --so-win-up 3 --so-win-down 6 --so-f1 1.4378 --so-f2 3.5599 --beta0-scale 0.9408",
+  "e129": "--rcl 3 --it-div 6 --it-int 5 --select first --order random --ils 18 --so-win-up 5 --so-win-down 8 --so-f1 1.8063 --so-f2 2.5929 --beta0-scale 0.1523",
+  "e126": "--rcl 7 --it-div 11 --it-int 8 --select first --order random --ils 5 --so-win-up 2 --so-win-down 7 --so-f1 1.2559 --so-f2 3.9278 --beta0-scale 0.1956",
+  "e127": "--rcl 3 --it-div 7 --it-int 7 --select first --order random --ils 7 --so-win-up 4 --so-win-down 10 --so-f1 1.8183 --so-f2 2.7996 --beta0-scale 0.7886",
+  "e101": "--rcl 3 --it-div 6 --it-int 5 --select first --order random --ils 8 --so-win-up 5 --so-win-down 9 --so-f1 1.6896 --so-f2 3.1689 --beta0-scale 0.1343",
+  "cfg2_oldbest": "--rcl 8 --it-div 9 --it-int 5 --select first --order random --ils 10 --so-win-up 6 --so-win-down 4 --so-f1 1.5636 --so-f2 2.068 --beta0-scale 1.1026",
+  "cfg1_default": "--rcl 5 --it-div 5 --it-int 3 --select best --order random --ils 20 --so-win-up 4 --so-win-down 4 --so-f1 1.5 --so-f2 2.5 --beta0-scale 1.0"
+ },
+ "native": {
+  "ils":   {"flag": "--ils-iters"},
+  "vns":   {"flag": "--vns-iters"},
+  "brkga": {"flag": "--brkga-gens"}
+ }
+}

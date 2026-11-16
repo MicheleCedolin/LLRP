@@ -1,0 +1,8 @@
+{"instance": "Gaskell21-5", "method": "brkga", "iter": 0, "budget": 731, "sec": 3.712, "target": 5.15, "cost": 653.4769765808}
+{"instance": "Gaskell21-5", "method": "ils", "iter": 0, "budget": 85431, "sec": 8.52, "target": 5.15, "cost": 653.4769765808}
+{"instance": "Gaskell21-5", "method": "brkga", "iter": 1, "budget": 1015, "sec": 4.958, "target": 5.15, "cost": 653.4769765808}
+{"instance": "Gaskell21-5", "method": "vns", "iter": 0, "budget": 72368, "sec": 8.799, "target": 5.15, "cost": 653.4769765808}
+{"instance": "Gaskell21-5", "method": "ils", "iter": 1, "budget": 51640, "sec": 4.024, "target": 5.15, "cost": 653.4769765808}
+{"instance": "Gaskell21-5", "method": "vns", "iter": 1, "budget": 42356, "sec": 3.776, "target": 5.15, "cost": 653.4769765808}
+{"instance": "Gaskell21-5", "method": "ils", "iter": 2, "budget": 66090, "sec": 4.885, "target": 5.15, "cost": 653.4769765808}
+{"instance": "Gaskell21-5", "method": "vns", "iter": 2, "budget": 57769, "sec": 5.161, "target": 5.15, "cost": 653.4769765808}

@@ -1,0 +1,7 @@
+{"instance": "P113222-20", "method": "ils", "iter": 0, "budget": 11078, "sec": 268.862, "target": 30.900000000000002, "cost": 1874.4189925676}
+{"instance": "P113222-20", "method": "vns", "iter": 0, "budget": 9398, "sec": 298.964, "target": 30.900000000000002, "cost": 1874.4189925676}
+{"instance": "P113222-20", "method": "ils", "iter": 1, "budget": 1273, "sec": 32.393, "target": 30.900000000000002, "cost": 1874.4189925676}
+{"instance": "P113222-20", "method": "brkga", "iter": 0, "budget": 311, "sec": 304.44, "target": 30.900000000000002, "cost": 1874.4189925676}
+{"instance": "P113222-20", "method": "vns", "iter": 1, "budget": 971, "sec": 20.697, "target": 30.900000000000002, "cost": 1874.4189925676}
+{"instance": "P113222-20", "method": "brkga", "iter": 1, "budget": 31, "sec": 30.407, "target": 30.900000000000002, "cost": 1876.5761383324}
+{"instance": "P113222-20", "method": "vns", "iter": 2, "budget": 1450, "sec": 30.726, "target": 30.900000000000002, "cost": 1874.4189925676}
