@@ -1,0 +1,7 @@
+wrap_fast.cpp:8:9: warning: 'CLOCK_PROCESS_CPUTIME_ID' macro redefined [-Wmacro-redefined]
+#define CLOCK_PROCESS_CPUTIME_ID CLOCK_MONOTONIC
+        ^
+/usr/share/emscripten/cache/sysroot/include/time.h:87:9: note: previous definition is here
+#define CLOCK_PROCESS_CPUTIME_ID 2
+        ^
+1 warning generated.

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LLRP Solver: Learn</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <nav class="nav"><a href="index.html">Solver</a><a href="learn.html" aria-current="page">Learn</a></nav>
+    <h1>Learn the local search operators</h1>
+    <p class="lede">What each move does, where it comes from in the literature, and how the neighbourhoods scale. Everything here is computed in your browser; no data is sent anywhere.</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="card" aria-labelledby="h-basics">
+    <div class="step"><span>1</span><h2 id="h-basics">The problem in one paragraph</h2></div>
+    <p>In the latency location-routing problem (LLRP), we choose at most <em>p</em> depots to open, assign vehicles to them and route customers. The objective is the <strong>total latency</strong>: the sum of customer arrival times, not total travel distance. Because latency accumulates along a route, moving one customer early in a route shifts the arrival times of everyone after it. Every move is therefore evaluated by recomputing the latency of the affected routes.</p>
+    <p class="muted">Costs in this application are total latency. Gap to best known solution (BKS) = 100 (cost - BKS) / BKS.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-ls">
+    <div class="step"><span>2</span><h2 id="h-ls">How a local search uses the operators</h2></div>
+    <p>A local search repeatedly scans a <strong>neighbourhood</strong>: the set of solutions reachable with one move of a given operator. It either applies the best improving move (<em>best improvement</em>, the default) or the first one it finds (<em>first improvement</em>). It stops when no operator in the selected set improves the solution. The GRASP-RVND component of <code>llrp_fast</code> applies the operators in random variable-neighbourhood order; the metaheuristics apply the same descent inside their own search loop.</p>
+    <figure class="fig">
+      <svg id="fig-flow" viewBox="0 0 640 130" role="img" aria-labelledby="fig-flow-t"></svg>
+      <figcaption id="fig-flow-t">Descent loop: pick the next operator, scan its neighbourhood, apply the best improving move, repeat until no operator improves.</figcaption>
+    </figure>
+  </section>
+
+  <section class="card" aria-labelledby="h-ops">
+    <div class="step"><span>3</span><h2 id="h-ops">The 14 operators of <code>llrp_fast</code></h2></div>
+    <p class="muted">Each card gives the move, its origin, and the closest counterpart in the cited papers. Our block operators (<code>oropt</code>, <code>swap22</code> and the like) generalise the single-customer moves; they are our extension, not taken from the cited papers.</p>
+    <div id="op-cards" class="op-cards"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-diagrams">
+    <div class="step"><span>4</span><h2 id="h-diagrams">What three core moves look like</h2></div>
+    <p class="muted">Two routes are drawn from the depot (left). Dashed highlight marks the customers involved. Each panel pair shows the routes before and after one move.</p>
+    <div id="diagrams" class="diagrams"></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-charts">
+    <div class="step"><span>5</span><h2 id="h-charts">How the neighbourhoods grow</h2></div>
+    <p>The number of candidate moves in one full scan grows with the number of customers <em>n</em>. The chart below uses leading-term counts of candidate pairs; it shows <strong>candidate counts, not run times</strong>, because the time per candidate also depends on route lengths and on the latency bookkeeping.</p>
+    <figure class="fig">
+      <svg id="chart-candidates" viewBox="0 0 640 320" role="img" aria-labelledby="chart-candidates-t"></svg>
+      <figcaption id="chart-candidates-t">Approximate candidate moves per full scan versus n. Relocate: n(n-1). Swap (single customers): n(n-1)/2. 2-opt* and Swap* (pairs across routes): about n^2/2 each.</figcaption>
+    </figure>
+    <p class="muted">Formulas are leading terms. Exact counts depend on the number of routes and on whether a move stays inside one route.</p>
+    <h3>Operator families in the rc1 presets</h3>
+    <p>The Python rc1 kit groups its named neighbourhoods into presets. The chart shows how many named neighbourhoods each preset uses. The contents of <code>light</code> and <code>hgamp</code> are not listed here; only their sizes are known from the inventory.</p>
+    <figure class="fig">
+      <svg id="chart-presets" viewBox="0 0 640 260" role="img" aria-labelledby="chart-presets-t"></svg>
+      <figcaption id="chart-presets-t">Number of named neighbourhoods per rc1 preset.</figcaption>
+    </figure>
+  </section>
+
+  <section class="card" aria-labelledby="h-named">
+    <div class="step"><span>6</span><h2 id="h-named">The named neighbourhoods of <code>llrp_native</code></h2></div>
+    <p class="muted">These are the operators used by the metaheuristics (<code>--preset</code>). Each can be combined with a comma list, for example <code>--preset intra_relocate1,intra_2opt</code>.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Name</th><th>Move</th></tr></thead>
+      <tbody id="named-body"></tbody>
+    </table></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-refs">
+    <div class="step"><span>7</span><h2 id="h-refs">References</h2></div>
+    <ol class="refs">
+      <li>Osorio-Mora, A. et al. (2023). Intl. Trans. in Op. Res. 30(6), 3801-3832. Section 3.3 (insertion, swap, 2-opt, arc-swap, shift2-1), Section 3.4 (VND), Algorithm 3 (random move selection with depot open/close, route swap and route relocation). <em>Author list to be checked against the PDF.</em></li>
+      <li>Osorio-Mora, O. et al. (2023a). Computers &amp; Operations Research 158, 106293. M-ILS for LLRP, MDCCVRP and MDkTRP.</li>
+      <li>Zou, J., Hao, J.-K., Wu, Q. (2024). Computers &amp; Operations Research 170, 106758. RLHEA: Q-learning guided VND and strategic oscillation.</li>
+      <li>Moshref-Javadi, M., Lee, C. (2016). European Journal of Operational Research. doi:10.1016/j.ejor.2016.05.048. Swap, 2-opt and insertion as mutation operators.</li>
+      <li>Nucamendi-Guillén, S. et al. (2022). Computers &amp; Operations Research 143, 105767. Exact methods and formulations for LLRP.</li>
+      <li>Vincent et al. (2010). Insertion and swap neighbourhoods for the capacitated location-routing problem (CLRP).</li>
+      <li>Kyriakakis et al. (2021). Constant-time evaluation of arc-swap and shift2-1 moves (as cited in Osorio-Mora et al., 2023). <em>Full reference to be checked.</em></li>
+      <li>Lin, S., Kernighan, B. W. (1973). An effective heuristic algorithm for the traveling-salesman problem. Operations Research 21(2). 2-opt origin.</li>
+    </ol>
+    <p class="muted">Full bibliographic details should be verified against the PDFs before any publication. Entries marked "to be checked" have not been confirmed against the source.</p>
+  </section>
+
+  <section class="card" aria-labelledby="h-further">
+    <div class="step"><span>8</span><h2 id="h-further">Open directions from the literature</h2></div>
+    <ul class="bullets">
+      <li>Capacitated depots, which none of the cited LLRP papers treat in full (Moshref-Javadi and Lee, 2016; Nucamendi-Guillén et al., 2022).</li>
+      <li>Route duration limits, and demand or travel-time uncertainty (Nucamendi-Guillén et al., 2022).</li>
+      <li>Multi-objective trade-offs, for example latency against open depot cost (Moshref-Javadi and Lee, 2016).</li>
+      <li>Time-window LLRP and extensions to CCVRP and FLP (Osorio-Mora et al., 2023).</li>
+      <li>Learning-guided neighbourhood ordering, which Zou et al. (2024) apply with Q-learning; this is directly comparable to the RVND ordering in <code>llrp_fast</code>.</li>
+    </ul>
+    <p class="muted">Code and data availability: the 76 benchmark instances are public (Tuzun-Burke, Prodhon, Barreto). None of the five cited LLRP papers releases solver code; some state that data is available on request.</p>
+  </section>
+
+</main>
+
+<script src="learn.js"></script>
+</body>
+</html>

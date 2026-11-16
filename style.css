@@ -152,3 +152,45 @@ td.bad, td .bad { color: var(--bad); }
   .field { min-width: 0; flex: 1 1 100%; }
   .count { margin-left: 0; width: 100%; }
 }
+
+/* ---------- navigation and Learn page ---------- */
+.nav { display: flex; gap: 14px; margin-bottom: 10px; font-size: 14px; }
+.nav a { color: var(--accent); text-decoration: none; padding: 2px 0; border-bottom: 2px solid transparent; }
+.nav a[aria-current="page"] { border-bottom-color: var(--accent); font-weight: 600; }
+.nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.op-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 12px; }
+.op-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--bg); min-width: 0; }
+.op-card h3 { margin: 0 0 6px; font-size: 15px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.op-card p { margin: 4px 0; font-size: 14px; }
+.op-card .ref { color: var(--muted); font-size: 13px; }
+.tag { font-size: 11px; font-weight: 500; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
+
+.fig { margin: 16px 0 6px; min-width: 0; }
+.fig svg { width: 100%; height: auto; display: block; }
+.fig figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.diagrams { display: grid; gap: 14px; margin-top: 10px; }
+
+.node-box { fill: var(--chip); stroke: var(--accent); stroke-width: 1.2; }
+.arrow { stroke: var(--muted); stroke-width: 1.4; }
+.arrow-head { fill: var(--muted); }
+.lbl { fill: var(--fg); font-size: 14px; font-family: "Inter", system-ui, sans-serif; }
+.lbl.small { font-size: 12px; }
+.lbl.bold { font-weight: 600; }
+.route { stroke: var(--accent); stroke-width: 2; }
+.route2 { stroke: var(--muted); stroke-width: 2; stroke-dasharray: 5 3; }
+.node { fill: var(--card); stroke: var(--accent); stroke-width: 1.5; }
+.node.hl { fill: var(--accent); }
+.node.hl + text, .node.hl ~ text { fill: var(--accent-fg); }
+.depot { fill: var(--chip); stroke: var(--fg); stroke-width: 1.2; }
+.divider { stroke: var(--line); stroke-dasharray: 3 3; }
+.grid { stroke: var(--line); stroke-width: 1; }
+.axis { stroke: var(--muted); stroke-width: 1.2; }
+.series { stroke-width: 2.4; }
+.series.s0 { stroke: var(--accent); }
+.series.s1 { stroke: #c2410c; }
+.series.s2 { stroke: #15803d; }
+.bar { fill: var(--accent); }
+
+.refs, .bullets { padding-left: 20px; font-size: 14px; }
+.refs li, .bullets li { margin: 6px 0; }
