@@ -1,0 +1,65 @@
+name: validate-llrp
+# Held-out validation: llrp_fast (5 irace elites + old best + web default) vs native ILS/VNS/BRKGA, equal wall-clock budget.
+# One matrix job per instance (4 parallel runs on the 4 vCPU runner, as in the irace tuning run); results are
+# committed to branch `validation-results` (run-<run_id>/), so no artifact download is needed.
+on:
+  push:
+    branches: [validation]
+  workflow_dispatch:
+    inputs:
+      seeds:      {description: "seeds per (instance, method)", default: "10"}
+      time_scale: {description: "multiplier on per-run caps (5/15/30/45/75 s by n)", default: "1"}
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        instance: ["Ch100-10", "Gaskell21-5", "100-5-1-5", "100-5-3-5", "200-10-2-10", "50-5-2b-5", "P111112-10", "P113222-20", "P121112-10", "P123212-10", "P132122-20", "P133212-10"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with: {ref: gh-pages, path: web}
+      - name: Run validation for ${{ matrix.instance }}
+        run: |
+          mkdir -p out
+          { echo "instance: ${{ matrix.instance }}"; date -u; node --version; python3 --version; nproc; free -m; lscpu; } > "out/env_${{ matrix.instance }}.txt"
+          python3 validate/driver.py --web web --instance "${{ matrix.instance }}" --out out --parallel 4 --seeds ${{ inputs.seeds || '10' }} --scale ${{ inputs.time_scale || '1' }} 2>&1 | tee "out/log_${{ matrix.instance }}.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: val-${{ matrix.instance }}
+          path: out/
+  collect:
+    needs: run
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: val-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/collected
+      - name: Commit results to validation-results
+        run: |
+          set -e
+          C="${{ runner.temp }}/collected"
+          cat "$C"/runs_*.jsonl > "$C/all_runs.jsonl"
+          cat "$C"/calib_*.jsonl > "$C/all_calib.jsonl"
+          cp validate/selected.json validate/configs.json "$C"/
+          { echo "run_id: ${{ github.run_id }}"; echo "source_commit: ${{ github.sha }}"; date -u; } > "$C/manifest.txt"
+          git config user.name "github-actions"; git config user.email "github-actions@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin validation-results >/dev/null 2>&1; then
+            git fetch origin validation-results; git checkout -B validation-results FETCH_HEAD
+          else
+            git checkout --orphan validation-results; git rm -rf . -q || true
+          fi
+          mkdir -p "run-${{ github.run_id }}"; cp -r "$C"/. "run-${{ github.run_id }}/"
+          git add "run-${{ github.run_id }}"
+          git commit -m "validation results run ${{ github.run_id }}"
+          git push origin validation-results
