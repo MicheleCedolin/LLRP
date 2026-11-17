@@ -4,13 +4,16 @@
 
   const $ = (id) => document.getElementById(id);
   const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
-  // Operator presets taken from the cited LLRP papers (see Learn page, section 7).
+  // Operator presets: the operators each cited paper describes exactly (Learn page, section 6).
+  // "All papers" is the union of those sets. Approximate counterparts (ds, oropt2) are not included.
+  const OM_PRESET = ['relocate', 'swap11', '2opt', '2opt*', 'swap21', 'swap22', 'dexch', 'rdepot'];
   const LIT_PRESETS = [
-    { key: 'om2023',  label: 'Osorio-Mora 2023',  ops: ['relocate', 'swap11', '2opt', '2opt*', 'dexch', 'rdepot', 'ds'] },
-    { key: 'om2023a', label: 'Osorio-Mora 2023a', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
-    { key: 'mjl2016', label: 'Moshref-Javadi 2016', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
-    { key: 'ng2022',  label: 'Nucamendi-Guillen 2022', ops: ['relocate', 'swap11', '2opt'] },
-    { key: 'zou2024', label: 'Zou 2024', ops: ['relocate', 'swap11', 'swap21', 'swap22', '2opt', '2opt*', 'swapstar'] },
+    { key: 'mjl2016', label: 'MJL16', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
+    { key: 'ng2022',  label: 'NG22',  ops: ['relocate', 'swap11', '2opt'] },
+    { key: 'om2023',  label: 'OM23',  ops: OM_PRESET },
+    { key: 'om2023a', label: 'OM23a', ops: OM_PRESET },
+    { key: 'zou2024', label: 'Z24',   ops: ['relocate', 'swap11', 'swap21', 'swap22', '2opt', '2opt*', 'swapstar'] },
+    { key: 'union',   label: 'All papers', ops: ['relocate', 'swap11', 'swap21', 'swap22', '2opt', '2opt*', 'swapstar', 'dexch', 'rdepot'] },
   ];
 
   const S = {
@@ -296,7 +299,12 @@
       const lo = Math.min(...all), hi = Math.max(...all), pad = (hi - lo) * 0.05 || 1;
       Y = (v) => TP + (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad))) * (H - TP - B);
     }
-    const X = (t) => L + (t / T) * (W - L - R);
+    // Auto-scaled time axis: ticks every "nice" step of at least 1 s; the axis ends at the next tick after the longest run.
+    const stepRaw = Math.max(1, T / 5);
+    const mag = Math.pow(10, Math.floor(Math.log10(stepRaw)));
+    const step = [1, 2, 5, 10].map((m) => m * mag).find((s) => s >= stepRaw) || 10 * mag;
+    const TAX = Math.max(step, Math.ceil(T / step) * step);
+    const X = (t) => L + (t / TAX) * (W - L - R);
     const svg = document.createElementNS(SVG_NS, 'svg');
     svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     svg.setAttribute('role', 'img');
@@ -316,9 +324,8 @@
         svg.append(sv('text', { x: L - 6, y: Y(v) + 4, 'text-anchor': 'end', class: 'map-lbl' }, String(Math.round(v))));
       }
     }
-    for (let k = 0; k <= 4; k++) {
-      const t = (T * k) / 4;
-      svg.append(sv('text', { x: X(t), y: H - B + 16, 'text-anchor': 'middle', class: 'map-lbl' }, t.toFixed(T < 1 ? 3 : T < 10 ? 1 : 0)));
+    for (let t = 0; t <= TAX + 1e-9; t += step) {
+      svg.append(sv('text', { x: X(t), y: H - B + 16, 'text-anchor': 'middle', class: 'map-lbl' }, String(Math.round(t))));
     }
     svg.append(sv('line', { x1: L, x2: L, y1: TP, y2: H - B, class: 'map-axis' }), sv('line', { x1: L, x2: W - R, y1: H - B, y2: H - B, class: 'map-axis' }));
     svg.append(sv('text', { x: (L + W - R) / 2, y: H - 4, 'text-anchor': 'middle', class: 'map-lbl' }, 'seconds'));

@@ -10,16 +10,16 @@
     oropt2: 'Our block extension of insertion (not in the cited papers).',
     oropt3: 'Our block extension of insertion (not in the cited papers).',
     swap11: 'Swap: Osorio-Mora et al. (2023), Sec. 3.3. Block sizes are our extension.',
-    swap21: 'Block swap: our extension of swap.',
-    swap22: 'Block swap: our extension of swap.',
+    swap21: 'Shift2-1 (Osorio-Mora et al., 2023, Sec. 3.3; OM23a, Sec. 2.2.1). Also the node-arc swap N5 of Zou et al. (2024).',
+    swap22: 'Arc-swap (Osorio-Mora et al., 2023, Sec. 3.3; OM23a, Sec. 2.2.1). Also the arc-arc swap N6 of Zou et al. (2024).',
     swap31: 'Block swap: our extension of swap.',
     swap32: 'Block swap: our extension of swap.',
     '2opt': '2-opt: Osorio-Mora et al. (2023), Sec. 3.3; classical TSP move, Lin and Kernighan (1973).',
     '2opt*': 'Inter-route 2-opt crossing: Osorio-Mora et al. (2023), Sec. 3.3.',
     swapstar: 'Swap*: best reinsertion of two customers across routes (Vidal et al.; citation to be checked).',
-    dexch: 'Closest to RouteSwap, Osorio-Mora et al. (2023), Algorithm 3.',
-    rdepot: 'Closest to RouteRelocation, Osorio-Mora et al. (2023), Algorithm 3.',
-    ds: 'Closest to DepotOpenClose, Osorio-Mora et al. (2023), Algorithm 3.',
+    dexch: 'Route swap of starting depots: RouteSwap (OM23, Algorithm 3); Route-Swap perturbation (OM23a).',
+    rdepot: 'Route relocation to another depot: RouteRelocation (OM23, Algorithm 3); Route-Relocation perturbation (OM23a).',
+    ds: 'Closest to DepotOpenClose (OM23, Algorithm 3) and Configuration-Swap (OM23a). Not an exact match.',
   };
 
   // Colour families and leading-term candidate counts.
@@ -46,19 +46,23 @@
     ds:       { fam: 'depot',    f: (n) => n / 5,       formula: 'K(m-p) = n/5' },
   };
 
-  // Which llrp_fast operators each cited paper describes (see Section 7 of the page).
+  // Which llrp_fast operators each cited paper describes (Learn page, section 6).
   // ops: exact correspondence. approx: closest counterpart, not the same move.
-  // Zou et al. (2024), Section 2.6.3, seven neighbourhoods N1-N7 of RL-SOVND:
-  //   N1 relocate -> relocate; N2 swap -> swap11 (customer part; the depot swap has no counterpart);
-  //   N3 2-opt / 2-opt* -> 2opt, 2opt*; N4 2-relocate -> oropt2 (approx.: Zou moves two customers
-  //   to separate positions, oropt2 moves one contiguous block); N5 node-arc swap -> swap21;
-  //   N6 arc-arc swap -> swap22; N7 Swap* -> swapstar (executed only when customer sets overlap).
+  // MJL16: memetic local search Swap, Insertion, 2-Opt; granular search Swap, Relocation, 2-Opt.
+  //   Its 2-Opt includes the crossing of two routes, so 2opt* is ticked.
+  // NG22: GBILS improvement phase Swap, Insertion, 2-opt inside routes; Exchange and Relocation are inter-route forms.
+  // OM23 / OM23a: insertion, swap, 2-opt (with the two-route crossing), arc-swap = swap22, shift2-1 = swap21,
+  //   and the depot moves RouteSwap = dexch, RouteRelocation = rdepot. DepotOpenClose and Configuration-Swap = ds (approximate).
+  // Z24: Zou et al. (2024), Section 2.6.3, N1-N7. N1 relocate; N2 customer swap (the depot swap has no counterpart);
+  //   N3 2-opt and 2-opt*; N4 approximated by oropt2 (a contiguous block, not two separate customers);
+  //   N5 swap21; N6 swap22; N7 swapstar.
+  const OM_OPS = ['relocate', 'swap11', '2opt', '2opt*', 'swap21', 'swap22', 'dexch', 'rdepot'];
   const LIT_COLS = [
-    { key: 'om2023',  label: 'Osorio-Mora 2023',  ops: ['relocate', 'swap11', '2opt', '2opt*', 'dexch', 'rdepot', 'ds'] },
-    { key: 'om2023a', label: 'Osorio-Mora 2023a', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
-    { key: 'mjl2016', label: 'Moshref-Javadi 2016', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
-    { key: 'ng2022',  label: 'Nucamendi-Guillén 2022', ops: ['relocate', 'swap11', '2opt'] },
-    { key: 'zou2024', label: 'Zou 2024', ops: ['relocate', 'swap11', 'swap21', 'swap22', '2opt', '2opt*', 'swapstar'], approx: ['oropt2'] },
+    { key: 'mjl2016', label: 'MJL16', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
+    { key: 'ng2022',  label: 'NG22',  ops: ['relocate', 'swap11', '2opt'] },
+    { key: 'om2023',  label: 'OM23',  ops: OM_OPS, approx: ['ds'] },
+    { key: 'om2023a', label: 'OM23a', ops: OM_OPS, approx: ['ds'] },
+    { key: 'zou2024', label: 'Z24',   ops: ['relocate', 'swap11', 'swap21', 'swap22', '2opt', '2opt*', 'swapstar'], approx: ['oropt2'] },
   ];
 
   // ---------- SVG helpers ----------
@@ -69,35 +73,7 @@
     return e;
   }
 
-  // ---------- operator cards and mini charts ----------
-  function miniChart(op) {
-    const m = MODEL[op.id];
-    if (!m) return null;
-    const fam = FAMILY[m.fam];
-    const W = 240, H = 130, L = 36, R = 8, T = 10, B = 22;
-    const pw = W - L - R, ph = H - T - B;
-    const xmin = 10, xmax = 200;
-    const ymax = Math.max(...Array.from({ length: 191 }, (_, i) => m.f(xmin + i)));
-    const stepUnit = Math.pow(10, Math.floor(Math.log10(ymax)));
-    const niceMax = Math.ceil(ymax / stepUnit) * stepUnit;
-    const x = (v) => L + ((v - xmin) / (xmax - xmin)) * pw;
-    const y = (v) => T + ph - (v / niceMax) * ph;
-    const svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': op.id + ' candidate moves versus n' });
-    svg.append(el('line', { x1: L, y1: T + ph, x2: W - R, y2: T + ph, class: 'axis' }));
-    svg.append(el('line', { x1: L, y1: T, x2: L, y2: T + ph, class: 'axis' }));
-    svg.append(el('text', { x: L - 4, y: T + 4, 'text-anchor': 'end', class: 'lbl tiny' }, niceMax >= 1000 ? (niceMax / 1000) + 'k' : String(niceMax)));
-    svg.append(el('text', { x: L - 4, y: T + ph + 3, 'text-anchor': 'end', class: 'lbl tiny' }, '0'));
-    svg.append(el('text', { x: L, y: H - 6, 'text-anchor': 'middle', class: 'lbl tiny' }, '10'));
-    svg.append(el('text', { x: W - R, y: H - 6, 'text-anchor': 'end', class: 'lbl tiny' }, '200'));
-    svg.append(el('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', class: 'lbl tiny' }, 'customers n'));
-    const pts = [];
-    for (let v = xmin; v <= xmax; v += 2) pts.push(x(v).toFixed(1) + ',' + y(m.f(v)).toFixed(1));
-    const area = 'M' + x(xmin) + ',' + (T + ph) + ' L' + pts.join(' L') + ' L' + x(xmax) + ',' + (T + ph) + ' Z';
-    svg.append(el('path', { d: area, fill: fam.color, 'fill-opacity': 0.14 }));
-    svg.append(el('polyline', { points: pts.join(' '), fill: 'none', stroke: fam.color, 'stroke-width': 2.4 }));
-    return svg;
-  }
-
+  // ---------- operator cards ----------
   function renderCards(ops) {
     const box = $('op-cards');
     box.textContent = '';
@@ -120,16 +96,6 @@
       r.className = 'ref';
       r.textContent = REF[op.id] || '';
       card.append(h, p, r);
-      const chart = miniChart(op);
-      if (chart) {
-        const cap = document.createElement('p');
-        cap.className = 'mini-cap';
-        cap.append(document.createTextNode('Candidates per scan: '));
-        const f = document.createElement('code');
-        f.textContent = fm.formula;
-        cap.append(f);
-        card.append(chart, cap);
-      }
       box.append(card);
     }
   }
@@ -318,54 +284,10 @@
     }
   }
 
-  // ---------- candidate chart ----------
-  function axisChart(svgId, opts) {
-    const svg = $(svgId);
-    svg.textContent = '';
-    const W = 400, H = 300, L = 72, R = 14, T = 40, B = 46;
-    const pw = W - L - R, ph = H - T - B;
-    const x = (v) => L + ((v - opts.xmin) / (opts.xmax - opts.xmin)) * pw;
-    const y = (v) => T + ph - (v / opts.ymax) * ph;
-    for (let k = 0; k <= 4; k++) {
-      const v = (opts.ymax * k) / 4;
-      svg.append(el('line', { x1: L, y1: y(v), x2: W - R, y2: y(v), class: 'grid' }));
-      svg.append(el('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'lbl small' }, opts.yfmt(v)));
-    }
-    for (let v = opts.xmin; v <= opts.xmax; v += opts.xstep) {
-      svg.append(el('text', { x: x(v), y: H - B + 16, 'text-anchor': 'middle', class: 'lbl small' }, String(v)));
-    }
-    svg.append(el('line', { x1: L, y1: T + ph, x2: W - R, y2: T + ph, class: 'axis' }));
-    svg.append(el('line', { x1: L, y1: T, x2: L, y2: T + ph, class: 'axis' }));
-    svg.append(el('text', { x: W / 2, y: H - 4, 'text-anchor': 'middle', class: 'lbl' }, opts.xlabel));
-    svg.append(el('text', { x: 16, y: T + ph / 2, 'text-anchor': 'middle', class: 'lbl small', transform: 'rotate(-90 16 ' + (T + ph / 2) + ')' }, opts.ylabel));
-    opts.series.forEach((s, idx) => {
-      const pts = [];
-      for (let v = opts.xmin; v <= opts.xmax; v += 1) pts.push(x(v) + ',' + y(s.f(v)));
-      svg.append(el('polyline', { points: pts.join(' '), fill: 'none', class: 'series s' + idx }));
-      const lx = L + idx * 170, ly = 14;
-      svg.append(el('line', { x1: lx, y1: ly, x2: lx + 18, y2: ly, class: 'series s' + idx }));
-      svg.append(el('text', { x: lx + 24, y: ly + 4, class: 'lbl small' }, s.name));
-    });
-  }
-
-  function drawCandidates() {
-    axisChart('chart-candidates', {
-      xmin: 10, xmax: 200, xstep: 50, ymax: 40000,
-      xlabel: 'customers n',
-      ylabel: 'candidates per scan',
-      yfmt: (v) => Math.round(v / 1000) + 'k',
-      series: [
-        { name: 'relocate n(n-1)', f: (n) => n * (n - 1) },
-        { name: 'swap n(n-1)/2', f: (n) => (n * (n - 1)) / 2 },
-      ],
-    });
-  }
-
   // ---------- init ----------
   async function init() {
     drawFlow();
     renderDiagrams();
-    drawCandidates();
     try {
       const ops = await (await fetch('data/operators.json')).json();
       renderCards(ops.llrp_ops);

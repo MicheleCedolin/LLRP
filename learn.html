@@ -11,7 +11,7 @@
   <div class="wrap">
     <nav class="nav"><a href="index.html">Solver</a><a href="learn.html" aria-current="page">Learn</a></nav>
     <h1>Learn the local search operators</h1>
-    <p class="lede">What each move does, where it comes from in the literature, and how the neighbourhoods scale. Everything here is computed in your browser; no data is sent anywhere.</p>
+    <p class="lede">What each move does and where it comes from in the literature. Everything here is computed in your browser; no data is sent anywhere.</p>
   </div>
 </header>
 
@@ -25,7 +25,7 @@
 
   <section class="card" aria-labelledby="h-ls">
     <div class="step"><span>2</span><h2 id="h-ls">How a local search uses the operators</h2></div>
-    <p>A local search repeatedly scans a <strong>neighbourhood</strong>: the set of solutions reachable with one move of a given operator. It either applies the best improving move (<em>best improvement</em>, the default) or the first one it finds (<em>first improvement</em>). It stops when no operator in the selected set improves the solution. The GRASP-RVND component of <code>llrp_fast</code> applies the operators in random variable-neighbourhood order; the metaheuristics apply the same descent inside their own search loop.</p>
+    <p>A local search repeatedly scans a <strong>neighbourhood</strong>: the set of solutions reachable with one move of a given operator. It either applies the best improving move (<em>best improvement</em>, the default) or the first one it finds (<em>first improvement</em>). It stops when no operator in the selected set improves the solution.</p>
     <figure class="fig">
       <svg id="fig-flow" viewBox="0 0 640 130" role="img" aria-labelledby="fig-flow-t"></svg>
       <figcaption id="fig-flow-t">Descent loop: pick the next operator, scan its neighbourhood, apply the best improving move, repeat until no operator improves.</figcaption>
@@ -41,7 +41,6 @@
       <span style="--c:#15803d">depot moves</span>
     </div>
     <div id="op-cards" class="op-cards"></div>
-    <p class="muted">Mini charts: leading-term candidate counts per scan, with K = n/10 routes of average length 10, m = 5 depots and p = 3 open. These are counts, not run times. The 2-opt and depot formulas are linear in n; the others grow quadratically.</p>
   </section>
 
   <section class="card" aria-labelledby="h-diagrams">
@@ -50,18 +49,8 @@
     <div id="diagrams" class="diagrams"></div>
   </section>
 
-  <section class="card" aria-labelledby="h-charts">
-    <div class="step"><span>5</span><h2 id="h-charts">How the neighbourhoods grow</h2></div>
-    <p>The number of candidate moves in one full scan grows with the number of customers <em>n</em>. The chart below uses leading-term counts of candidate pairs; it shows <strong>candidate counts, not run times</strong>, because the time per candidate also depends on route lengths and on the latency bookkeeping.</p>
-    <figure class="fig">
-      <svg id="chart-candidates" viewBox="0 0 400 300" role="img" aria-labelledby="chart-candidates-t"></svg>
-      <figcaption id="chart-candidates-t">Approximate candidate moves per full scan versus n. Relocate: n(n-1). Swap of two customers: n(n-1)/2. The 2-opt* and Swap* counts (about n^2/2) lie on the swap curve, so they are not drawn separately.</figcaption>
-    </figure>
-    <p class="muted">Formulas are leading terms. Exact counts depend on the number of routes and on whether a move stays inside one route.</p>
-  </section>
-
   <section class="card" aria-labelledby="h-named">
-    <div class="step"><span>6</span><h2 id="h-named">The named neighbourhoods of <code>llrp_native</code></h2></div>
+    <div class="step"><span>5</span><h2 id="h-named">The named neighbourhoods of <code>llrp_native</code></h2></div>
     <p class="muted">These are the operators used by the metaheuristics (<code>--preset</code>). Each can be combined with a comma list, for example <code>--preset intra_relocate1,intra_2opt</code>.</p>
     <div class="scroll"><table>
       <thead><tr><th>Name</th><th>Move</th></tr></thead>
@@ -70,27 +59,22 @@
   </section>
 
   <section class="card" aria-labelledby="h-lit">
-    <div class="step"><span>7</span><h2 id="h-lit">Which paper uses which operator</h2></div>
-    <p>The presets in the solver follow the neighbourhoods reported in the cited LLRP papers. A tick means the paper's text describes that move; a dash means it is not in the paper. Our block moves and Swap* are not in these papers.</p>
+    <div class="step"><span>6</span><h2 id="h-lit">Which paper uses which operator</h2></div>
+    <p>Five papers are compared, listed by year. <strong>MJL16</strong> Moshref-Javadi and Lee (2016); <strong>NG22</strong> Nucamendi-Guillén et al. (2022); <strong>OM23</strong> Osorio-Mora et al. (2023, ITOR); <strong>OM23a</strong> Osorio-Mora et al. (2023, COR); <strong>Z24</strong> Zou et al. (2024). Each column is also a preset in the solver's local search section, and <strong>All papers</strong> is the union of the operators that at least one paper describes exactly.</p>
     <div class="scroll"><table class="matrix" id="lit-matrix"></table></div>
-    <p class="muted">A tick (✓) means the paper's neighbourhood matches the <code>llrp_fast</code> operator; ≈ means the closest counterpart with a different definition. Osorio-Mora et al. (2023a) also list arc-swap and shift2-1, which <code>llrp_fast</code> does not implement yet. Ticks for Moshref-Javadi and Lee (2016) follow their description of the mutation and local-search moves, which includes inter-route effects of 2-opt.</p>
-    <p><strong>Zou et al. (2024), RL-SOVND (Algorithm 2, Section 2.6.3).</strong> The local search explores seven neighbourhoods in an order learned by Q-learning, with first improvement inside each neighbourhood and strategic oscillation around the feasibility boundary. The seven are: N1 relocate one customer; N2 swap two nodes of the same type (customers, or depots); N3 2-opt inside a route and 2-opt* between routes; N4 relocate two consecutive customers; N5 swap a customer with an arc (two consecutive customers); N6 swap two arcs; N7 Swap* between two routes, executed only when the customer sets overlap. Neighbourhoods are limited to the δ nearest vertices. The depot-swap mutation and the ejection chain of Section 2.5 are not local-search moves and are not in the table.</p>
-    <p class="muted">Matching for <code>llrp_fast</code>: N4 is approximated by <code>oropt2</code>, which moves one contiguous block instead of two customers to separate positions. N5 and N6 are matched to the block operators <code>swap21</code> and <code>swap22</code>. Neither the depot swap nor the δ-nearest restriction is implemented. A Zou-based preset (<code>Zou 2024</code>) uses the seven operators that match exactly.</p>
+    <p class="muted">✓ means the paper describes this move. ≈ means the closest counterpart, with a different definition. — means the paper does not describe it. MJL16 uses Swap, Insertion and 2-Opt in its memetic local search, and Swap, Relocation and 2-Opt in its granular search. NG22 uses Swap, Insertion and 2-opt inside routes, with Exchange and Relocation between routes. OM23 and OM23a describe the same operator set: insertion, swap, 2-opt (with the two-route crossing), arc-swap, shift2-1, and the depot moves of their random phase or perturbations. They differ in the metaheuristic, a simulated annealing with VND in OM23 and an iterated local search in OM23a.</p>
+    <p class="muted"><strong>Z24:</strong> oropt2 is a different version of N4.</p>
   </section>
 
   <section class="card" aria-labelledby="h-refs">
-    <div class="step"><span>8</span><h2 id="h-refs">References</h2></div>
+    <div class="step"><span>7</span><h2 id="h-refs">References</h2></div>
     <ol class="refs">
-      <li>Osorio-Mora, A. et al. (2023). Intl. Trans. in Op. Res. 30(6), 3801-3832. Section 3.3 (insertion, swap, 2-opt, arc-swap, shift2-1), Section 3.4 (VND), Algorithm 3 (random move selection with depot open/close, route swap and route relocation). <em>Author list to be checked against the PDF.</em></li>
-      <li>Osorio-Mora, A. et al. (2023a). Computers &amp; Operations Research 158, 106293. M-ILS for LLRP, MDCCVRP and MDkTRP.</li>
-      <li>Zou, Y. et al. (2024). Computers &amp; Operations Research 170, 106758. RLHEA; RL-SOVND in Algorithm 2 and Section 2.6.3 (seven neighbourhoods N1-N7). <em>Full author list to be checked against the PDF.</em></li>
-      <li>Moshref-Javadi, M., Lee, C. (2016). European Journal of Operational Research. doi:10.1016/j.ejor.2016.05.048. Swap, 2-opt and insertion as mutation and local-search operators.</li>
-      <li>Nucamendi-Guillén, S. et al. (2022). Computers &amp; Operations Research 143, 105767. Exact methods, formulations and GBILS for LLRP.</li>
-      <li>Vincent et al. (2010). Insertion and swap neighbourhoods for the capacitated location-routing problem (CLRP).</li>
-      <li>Kyriakakis et al. (2021). Constant-time evaluation of arc-swap and shift2-1 moves (as cited in Osorio-Mora et al., 2023). <em>Full reference to be checked.</em></li>
-      <li>Lin, S., Kernighan, B. W. (1973). An effective heuristic algorithm for the traveling-salesman problem. Operations Research 21(2). 2-opt origin.</li>
+      <li><strong>MJL16.</strong> Moshref-Javadi, M., &amp; Lee, C. (2016). The latency location-routing problem. <em>European Journal of Operational Research</em>, 255(2), 604–619. <a href="https://doi.org/10.1016/j.ejor.2016.05.048">doi:10.1016/j.ejor.2016.05.048</a></li>
+      <li><strong>NG22.</strong> Nucamendi-Guillén, S., Martínez-Salazar, I., Khodaparasti, S., &amp; Bruni, M. E. (2022). New formulations and solution approaches for the latency location routing problem. <em>Computers &amp; Operations Research</em>, 143, 105767. <a href="https://doi.org/10.1016/j.cor.2022.105767">doi:10.1016/j.cor.2022.105767</a></li>
+      <li><strong>OM23.</strong> Osorio-Mora, A., Rey, C., Toth, P., &amp; Vigo, D. (2023). Effective metaheuristics for the latency location routing problem. <em>International Transactions in Operational Research</em>, 30, 3801–3832. <a href="https://doi.org/10.1111/itor.13294">doi:10.1111/itor.13294</a></li>
+      <li><strong>OM23a.</strong> Osorio-Mora, A., Escobar, J. W., &amp; Toth, P. (2023). An iterated local search algorithm for latency vehicle routing problems with multiple depots. <em>Computers &amp; Operations Research</em>, 158, 106293. <a href="https://doi.org/10.1016/j.cor.2023.106293">doi:10.1016/j.cor.2023.106293</a></li>
+      <li><strong>Z24.</strong> Zou, Y., Hao, J.-K., &amp; Wu, Q. (2024). A reinforcement learning guided hybrid evolutionary algorithm for the latency location routing problem. <em>Computers &amp; Operations Research</em>, 170, 106758. <a href="https://doi.org/10.1016/j.cor.2024.106758">doi:10.1016/j.cor.2024.106758</a></li>
     </ol>
-    <p class="muted">Full bibliographic details should be verified against the PDFs before any publication. Entries marked "to be checked" have not been confirmed against the source.</p>
   </section>
 
 </main>
