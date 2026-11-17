@@ -43,7 +43,7 @@
           <li><strong>Depot limit.</strong> At most <em>p</em> depots are open.</li>
           <li><strong>Single visit.</strong> Every customer is served by exactly one route.</li>
           <li><strong>Vehicle capacity.</strong> The demand on one route is at most the vehicle capacity <em>Q</em>.</li>
-          <li><strong>Open routes.</strong> A route starts at an open depot and ends at its last customer. The return to the depot is not modelled: it does not enter the latency or the distance computed by the solver.</li>
+          <li><strong>Open routes.</strong> A route starts at an open depot and ends at its last customer. The return edge to the depot does not contribute to the latency objective, so it is not modelled (Ngueveu et al., 2010; Osorio-Mora et al., 2023). The solver's latency and distance computations follow the same convention.</li>
         </ul>
       </div>
       <div>
