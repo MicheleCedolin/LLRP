@@ -536,8 +536,8 @@
     sel.textContent = '';
     for (const name of Object.keys(S.presets)) sel.append(el('option', { value: name, text: name }));
     sel.append(el('option', { value: 'custom', text: 'custom (checked operators)' }));
-    sel.value = 'baseline_route';
-    applyPreset('baseline_route');
+    sel.value = 'MJL16';
+    applyPreset('MJL16');
   }
 
   function applyPreset(name) {
@@ -609,7 +609,8 @@
     const names = S.metaChecks.filter((c) => c.input.checked).map((c) => c.id);
     const presetSel = $('preset-select').value;
     if (presetSel === 'custom' && !names.length) return { error: 'Select at least one local search operator.' };
-    const preset = presetSel === 'custom' ? names.join(',') : presetSel;
+    // Always send the checked operators: presets are expanded to operator lists in the page, native takes lists.
+    const preset = names.join(',');
     const descent = $('descent-select').value;
     return {
       solver: 'llrp_native', seeds: seedList,
