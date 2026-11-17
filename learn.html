@@ -47,8 +47,8 @@
         <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
         <tbody>
           <tr><td><code>sa</code></td><td>Simulated annealing on feasible solutions with random moves, geometric cooling and reheating.</td><td>OM23 (simulated annealing framework; OM23 adds a VND after each temperature step, which this version does not).</td></tr>
-          <tr><td><code>ta</code></td><td>Threshold accepting with a shrinking deterministic band.</td><td>Not in the five papers.</td></tr>
-          <tr><td><code>rtr</code></td><td>Record-to-record travel. Excluded from the rc1 campaigns; kept for completeness.</td><td>Not in the five papers.</td></tr>
+          <tr><td><code>ta</code></td><td>Threshold accepting with a shrinking deterministic band.</td><td>Dueck and Scheuer (1990, additional): threshold accepting.</td></tr>
+          <tr><td><code>rtr</code></td><td>Record-to-record travel. Excluded from the rc1 campaigns; kept for completeness.</td><td>Dueck (1993, additional): record-to-record travel.</td></tr>
           <tr><td><code>tabu</code></td><td>Solution-memory tabu search with aspiration on a randomised candidate set.</td><td>Escobar et al. (2014, additional): granular tabu search inside VNS. Oran et al. (2012, additional): tabu search for VRPTW with priorities. Glover (1989, additional): tabu search, the original formulation.</td></tr>
           <tr><td><code>ils</code></td><td>Random shaking of strength 2, local search, improving acceptance.</td><td>OM23a (iterated local search).</td></tr>
           <tr><td><code>vns</code></td><td>Shaking with strength k = 1 … kmax, then local search.</td><td>Escobar et al. (2014, additional): VNS with granular tabu search for the CLRP. Tanash and As'ad (2025, additional): VNS as second phase.</td></tr>
@@ -198,7 +198,9 @@
       <li><strong>Martí, R., Resende, M. G. C., &amp; Ribeiro, C. C. (2013).</strong> Multi-start methods for combinatorial optimization. <em>European Journal of Operational Research</em>, 226(1), 1–8. <a href="https://doi.org/10.1016/j.ejor.2012.10.012">doi:10.1016/j.ejor.2012.10.012</a></li>
       <li><strong>Shaw, P. (1998).</strong> Using constraint programming and local search methods to solve vehicle routing problems. In M. Maher &amp; J.-F. Puget (Eds.), <em>Principles and Practice of Constraint Programming (CP98)</em>, LNCS 1520. <a href="https://doi.org/10.1007/3-540-49481-2_30">doi:10.1007/3-540-49481-2_30</a></li>
       <li><strong>Glover, F. (1998).</strong> A template for scatter search and path relinking. <em>Artificial Evolution (AE 1997)</em>, LNCS 1363, 1–51. <a href="https://doi.org/10.1007/BFb0026589">doi:10.1007/BFb0026589</a></li>
-      <li><strong>Ruiz, R., &amp; Stützle, T. (2007).</strong> A simple and effective iterated greedy algorithm for the permutation flowshop scheduling problem. <em>European Journal of Operational Research</em>, 177(3), 2033–2049. DOI to be confirmed.</li>
+      <li><strong>Ruiz, R., &amp; Stützle, T. (2007).</strong> A simple and effective iterated greedy algorithm for the permutation flowshop scheduling problem. <em>European Journal of Operational Research</em>, 177(3), 2033–2049. <a href="https://doi.org/10.1016/j.ejor.2005.12.009">doi:10.1016/j.ejor.2005.12.009</a></li>
+      <li><strong>Dueck, G., &amp; Scheuer, T. (1990).</strong> Threshold accepting: a general purpose optimization algorithm appearing superior to simulated annealing. <em>Journal of Computational Physics</em>, 90(1), 161–175. <a href="https://doi.org/10.1016/0021-9991(90)90201-B">doi:10.1016/0021-9991(90)90201-B</a></li>
+      <li><strong>Dueck, G. (1993).</strong> New optimization heuristics: the great deluge algorithm and the record-to-record travel. <em>Journal of Computational Physics</em>, 104(1), 86–92. <a href="https://doi.org/10.1006/jcph.1993.1010">doi:10.1006/jcph.1993.1010</a></li>
     </ol>
   </section>
 
