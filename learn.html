@@ -24,10 +24,66 @@
 
 <main class="wrap">
 
+  <ul class="jump" aria-label="Sections">
+    <li><a href="#h-basics">1 The problem</a></li><li><a href="#h-heur">2 Heuristics</a></li><li><a href="#h-ls">3 Local search</a></li><li><a href="#h-diagrams">4 Core moves</a></li><li><a href="#h-lit">5 Literature</a></li><li><a href="#h-refs">6 References</a></li>
+  </ul>
+
+
   <section class="card" aria-labelledby="h-basics">
-    <div class="step"><span>1</span><h2 id="h-basics">The problem in one paragraph</h2></div>
-    <p>In the latency location-routing problem (LLRP), we choose at most <em>p</em> depots to open, assign vehicles to them and route customers. The objective is the <strong>total latency</strong>: the sum of customer arrival times, not total travel distance. Because latency accumulates along a route, moving one customer early in a route shifts the arrival times of everyone after it. Every move is therefore evaluated by recomputing the latency of the affected routes.</p>
-    <p class="muted">Costs in this application are total latency. Gap to best known solution (BKS) = 100 (cost - BKS) / BKS.</p>
+    <div class="step"><span>1</span><h2 id="h-basics">The problem</h2></div>
+    <p>A company must decide <strong>which depots to open</strong> (at most <em>p</em>) and <strong>how to route vehicles</strong> from them to customers. In the latency location-routing problem (LLRP) the objective is not distance but <strong>total latency</strong>: the sum of customer arrival times. Because latency accumulates along a route, moving one customer early shifts the arrival times of everyone after it, so every move is evaluated by recomputing the latency of the affected routes.</p>
+    <div class="grid2">
+      <div>
+        <h3>Objective</h3>
+        <p>Minimise the total latency:</p>
+        <div class="eq">minimise   Σ_j  T_j</div>
+        <p class="muted">where T_j is the arrival time of customer j, measured from the start of its depot's route.</p>
+        <h3>Constraints</h3>
+        <ul>
+          <li><strong>Depot limit.</strong> At most <em>p</em> depots are open.</li>
+          <li><strong>Single visit.</strong> Every customer is served by exactly one route.</li>
+          <li><strong>Vehicle capacity.</strong> The demand on one route is at most the vehicle capacity <em>Q</em>.</li>
+          <li><strong>Route–depot consistency.</strong> A route starts and ends at the same open depot.</li>
+        </ul>
+      </div>
+      <div>
+        <figure class="fig">
+          <svg class="anim" viewBox="0 0 640 230" role="img" aria-labelledby="fig-prob-t">
+            <title id="fig-prob-t">Two depots serve customers along routes; each customer's latency is its arrival time.</title>
+            <rect x="26" y="46" width="30" height="30" fill="#1b2430"/>
+            <rect x="26" y="166" width="30" height="30" fill="#1b2430"/>
+            <text x="41" y="34" font-size="12" text-anchor="middle" fill="currentColor">depot A</text>
+            <text x="41" y="220" font-size="12" text-anchor="middle" fill="currentColor">depot B</text>
+            <path pathLength="1" d="M56,61 L170,40 L290,78 L392,46" fill="none" stroke="#1f5f8b" stroke-width="3" stroke-dasharray="1" stroke-dashoffset="1"><animate attributeName="stroke-dashoffset" values="1;0;0;1" keyTimes="0;.45;.85;1" dur="7s" repeatCount="indefinite"/></path>
+            <path pathLength="1" d="M56,181 L178,160 L300,190 L410,160" fill="none" stroke="#c2410c" stroke-width="3" stroke-dasharray="1" stroke-dashoffset="1"><animate attributeName="stroke-dashoffset" values="1;0;0;1" keyTimes="0;.45;.85;1" dur="7s" begin="-2s" repeatCount="indefinite"/></path>
+            <g fill="#1f5f8b"><circle cx="170" cy="40" r="7"/><circle cx="290" cy="78" r="7"/><circle cx="392" cy="46" r="7"/></g>
+            <g fill="#c2410c"><circle cx="178" cy="160" r="7"/><circle cx="300" cy="190" r="7"/><circle cx="410" cy="160" r="7"/></g>
+            <g font-size="12" fill="currentColor">
+              <text x="170" y="24" text-anchor="middle">t=4</text>
+              <text x="290" y="64" text-anchor="middle">t=11</text>
+              <text x="392" y="30" text-anchor="middle">t=19</text>
+              <text x="178" y="146" text-anchor="middle">t=5</text>
+              <text x="300" y="212" text-anchor="middle">t=13</text>
+              <text x="410" y="146" text-anchor="middle">t=22</text>
+            </g>
+          </svg>
+          <figcaption>Blue and orange routes start at their depots. Numbers are arrival times (latency), not distances.</figcaption>
+        </figure>
+      </div>
+    </div>
+    <h3>Notation</h3>
+    <div class="eq">I  candidate depots, p  maximum number of open depots
+J  customers, with demand q_j      Q  vehicle capacity
+R  routes; route r starts and ends at depot d(r) and visits customers J_r
+T_j  arrival time of customer j on its route (latency)
+
+minimise   Σ_j T_j
+
+subject to  Σ_i y_i  ≤  p                 y_i = 1 if depot i is open
+            every customer j belongs to exactly one J_r
+            Σ_(j in J_r) q_j  ≤  Q          for every route r
+            route r = (d(r), j_1, ..., j_k, d(r)), d(r) open</div>
+    <p class="muted">The solver does not fix the number of routes: the number of vehicles follows from the solution.</p>
   </section>
 
   <section class="card" aria-labelledby="h-heur">

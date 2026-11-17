@@ -17,8 +17,53 @@
 
 <main class="wrap">
 
+  <nav class="steps-nav" aria-label="Solver steps">
+    <a href="#sec-instance"><span>1</span> Instance</a>
+    <a href="#h-algo"><span>2</span> Heuristic</a>
+    <a href="#sec-ls"><span>3</span> Operators</a>
+    <a href="#h-run"><span>4</span> Run</a>
+    <a href="#h-results"><span>5</span> Results</a>
+  </nav>
+
+  <section class="card hero" aria-labelledby="h-problem">
+    <h2 id="h-problem">The problem in one picture</h2>
+    <figure class="fig">
+      <svg class="anim" viewBox="0 0 640 230" role="img" aria-labelledby="hero-t">
+        <title id="hero-t">Two depots serve customers along routes; each customer's latency is its arrival time.</title>
+        <rect x="26" y="46" width="30" height="30" fill="#1b2430"/>
+        <rect x="26" y="166" width="30" height="30" fill="#1b2430"/>
+        <text x="41" y="34" font-size="12" text-anchor="middle" fill="currentColor">depot A</text>
+        <text x="41" y="220" font-size="12" text-anchor="middle" fill="currentColor">depot B</text>
+        <path pathLength="1" d="M56,61 L170,40 L290,78 L392,46" fill="none" stroke="#1f5f8b" stroke-width="3" stroke-dasharray="1" stroke-dashoffset="1"><animate attributeName="stroke-dashoffset" values="1;0;0;1" keyTimes="0;.45;.85;1" dur="7s" repeatCount="indefinite"/></path>
+        <path pathLength="1" d="M56,181 L178,160 L300,190 L410,160" fill="none" stroke="#c2410c" stroke-width="3" stroke-dasharray="1" stroke-dashoffset="1"><animate attributeName="stroke-dashoffset" values="1;0;0;1" keyTimes="0;.45;.85;1" dur="7s" begin="-2s" repeatCount="indefinite"/></path>
+        <g fill="#1f5f8b"><circle cx="170" cy="40" r="7"/><circle cx="290" cy="78" r="7"/><circle cx="392" cy="46" r="7"/></g>
+        <g fill="#c2410c"><circle cx="178" cy="160" r="7"/><circle cx="300" cy="190" r="7"/><circle cx="410" cy="160" r="7"/></g>
+        <g font-size="12" fill="currentColor">
+          <text x="170" y="24" text-anchor="middle">t=4</text>
+          <text x="290" y="64" text-anchor="middle">t=11</text>
+          <text x="392" y="30" text-anchor="middle">t=19</text>
+          <text x="178" y="146" text-anchor="middle">t=5</text>
+          <text x="300" y="212" text-anchor="middle">t=13</text>
+          <text x="410" y="146" text-anchor="middle">t=22</text>
+        </g>
+        <text x="440" y="60" font-size="13" fill="currentColor">Objective: sum of all</text>
+        <text x="440" y="80" font-size="13" fill="currentColor">customer arrival times</text>
+        <text x="440" y="108" font-size="13" fill="currentColor">= 4+11+19+5+13+22</text>
+        <text x="440" y="136" font-size="12" fill="currentColor">Moving a customer early shifts</text>
+        <text x="440" y="152" font-size="12" fill="currentColor">the arrival of everyone after it.</text>
+      </svg>
+      <figcaption>Blue and orange routes start at their depots. Numbers are arrival times (latency), not distances. At most p depots may be open.</figcaption>
+    </figure>
+    <div class="problem-lead">
+      <p><strong>Decision.</strong> Which depots to open (at most p), and which customers each vehicle serves in which order.</p>
+      <p><strong>Objective.</strong> Minimise total latency, the sum of customer arrival times.</p>
+      <p><strong>Constraints.</strong> Vehicle capacity Q; each customer is visited once.</p>
+    </div>
+  </section>
+
   <section class="card" id="sec-instance" aria-labelledby="h-instance">
     <div class="step"><span>1</span><h2 id="h-instance">Choose an instance</h2></div>
+    <p class="hint">Choose a built-in benchmark or upload your own instance file. Built-in instances carry their best known solution (BKS), which the gap uses.</p>
     <div class="row">
       <label class="field grow">
         <span>Built-in benchmark</span>
@@ -39,6 +84,7 @@
 
   <section class="card" aria-labelledby="h-algo">
     <div class="step"><span>2</span><h2 id="h-algo">Choose a heuristic</h2></div>
+    <p class="hint">Pick the metaheuristic. Each one is run with the local search operators you select in step 3.</p>
     <div class="row">
       <label class="field grow">
         <span>Algorithm</span>
@@ -51,6 +97,7 @@
 
   <section class="card" id="sec-ls" aria-labelledby="h-ls">
     <div class="step"><span>3</span><h2 id="h-ls">Local search operators</h2></div>
+    <p class="hint">Select the moves the local search may use and their order. The order matters for VND and first-improvement search.</p>
     <div id="ls-llrp" hidden>
       <p class="muted">The operators the local search may use. Each operator scans its full neighbourhood. At least one must be selected.</p>
       <div class="chips-actions">
@@ -91,6 +138,7 @@
 
   <section class="card" aria-labelledby="h-run">
     <div class="step"><span>4</span><h2 id="h-run">Run and estimated time</h2></div>
+    <p class="hint">Set the seeds and time limit, check the estimate, then run. Runs use all selected seeds in parallel where the device allows.</p>
     <div class="row run-row">
       <label class="field">
         <span>First seed</span>
@@ -120,6 +168,8 @@
 
   <section class="card" aria-labelledby="h-results">
     <div class="step"><span>5</span><h2 id="h-results">Results</h2></div>
+    <p class="hint">Results appear as the seeds finish. The gap line shows each seed against the BKS at 0 %.</p>
+    <nav class="subnav" aria-label="Result views"><a href="#gap-fig">Gap</a><a href="#route-map">Routes</a><a href="#conv-chart">Convergence</a><a href="#results">All runs</a></nav>
     <figure class="fig map-fig" id="gap-fig">
       <div id="gap-strip"></div>
       <figcaption>Gap to the best known solution, one dot per successful seed (the BKS line is at 0 %).</figcaption>
@@ -144,8 +194,10 @@
 
   <section class="card about" aria-labelledby="h-about">
     <h2 id="h-about">About this solver</h2>
-    <p>The solver code is written in C++ and compiled to WebAssembly, so it runs entirely in your browser. The same sources build the command-line binaries; results are reproducible for a given seed on the same version. Costs are total latency (the sum of customer arrival times). Gap to BKS is 100 * (cost - BKS) / BKS, using the best known solution in the instance file.</p>
-    <p class="muted">Time estimates come from a fitted model on benchmark runs and are only indicative (roughly +/- 50%). Actual time depends on your device.</p>
+    <p><strong>How it runs.</strong> The solver is written in C++ and compiled to WebAssembly, so it runs entirely in your browser; nothing is sent to a server. The same sources build the command-line binaries, and results are reproducible for a given seed on the same version.</p>
+    <p><strong>Gap.</strong> Gap to BKS is 100 × (cost − BKS) / BKS, using the best known solution in the instance file. Costs are total latency (the sum of customer arrival times).</p>
+    <p><strong>Estimated time.</strong> Estimates come from a fitted model on benchmark runs and are only indicative (roughly ±50 %); actual time depends on your device.</p>
+    <p class="muted">For the full model, the operator definitions and the literature behind each heuristic, see the <a href="learn.html">Learn</a> page.</p>
   </section>
 
 </main>
