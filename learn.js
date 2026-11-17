@@ -100,23 +100,6 @@
     }
   }
 
-  // ---------- named neighbourhoods ----------
-  function renderNamed(named) {
-    const body = $('named-body');
-    body.textContent = '';
-    for (const op of named) {
-      const tr = document.createElement('tr');
-      const a = document.createElement('td');
-      const code = document.createElement('code');
-      code.textContent = op.id;
-      a.append(code);
-      const b = document.createElement('td');
-      b.textContent = op.text.replace(/\s*\(llrp5 family\)/, '');
-      tr.append(a, b);
-      body.append(tr);
-    }
-  }
-
   // ---------- literature matrix ----------
   function renderMatrix(ops) {
     const t = $('lit-matrix');
@@ -291,7 +274,6 @@
     try {
       const ops = await (await fetch('data/operators.json')).json();
       renderCards(ops.llrp_ops);
-      renderNamed(ops.meta_named);
       renderMatrix(ops.llrp_ops);
     } catch (e) {
       const p = document.createElement('p');

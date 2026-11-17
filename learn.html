@@ -10,8 +10,8 @@
 <header class="top">
   <div class="wrap">
     <nav class="nav"><a href="index.html">Solver</a><a href="learn.html" aria-current="page">Learn</a></nav>
-    <h1>Learn the local search operators</h1>
-    <p class="lede">What each move does and where it comes from in the literature. Everything here is computed in your browser; no data is sent anywhere.</p>
+    <h1>Learn the heuristics and local search operators</h1>
+    <p class="lede">The algorithms in the solver, the local search operators they use, and where each comes from in the literature. Everything here is computed in your browser; no data is sent anywhere.</p>
   </div>
 </header>
 
@@ -23,17 +23,43 @@
     <p class="muted">Costs in this application are total latency. Gap to best known solution (BKS) = 100 (cost - BKS) / BKS.</p>
   </section>
 
+  <section class="card" aria-labelledby="h-heur">
+    <div class="step"><span>2</span><h2 id="h-heur">Heuristics in the solver</h2></div>
+    <p>The solver offers the <code>llrp_fast</code> heuristic and 19 metaheuristics. Each metaheuristic is run with the local search operators you choose (section 3). The last column names the paper that uses the same idea: one of the five compared papers, or an additional source listed in section 6 (marked <em>additional</em>). Where the column reads "Not in the five papers" and no additional source is listed yet, the source is still to be added.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
+      <tbody>
+        <tr><td><code>llrp_fast</code></td><td>GRASP construction, randomised variable neighbourhood descent over the selected operators, iterated local search and strategic oscillation.</td><td>GRASP-based ILS as in NG22 (GBILS); strategic oscillation as in Z24, concept in Glover and Hao (2011, additional); GRASP as in Feo and Resende (1995).</td></tr>
+        <tr><td><code>grasp</code></td><td>Randomised greedy construction followed by local search, restarted.</td><td>GRASP: Feo and Resende (1995); constructive phase of NG22. Prins et al. (2006, additional): GRASP with learning and path relinking for the capacitated LRP.</td></tr>
+        <tr><td><code>ils</code></td><td>Random shaking of strength 2, local search, improving acceptance.</td><td>OM23a (iterated local search).</td></tr>
+        <tr><td><code>vns</code></td><td>Shaking with strength k = 1 … kmax, then local search.</td><td>Escobar et al. (2014, additional): VNS with granular tabu search for the CLRP. Tanash and As'ad (2025, additional): VNS as second phase.</td></tr>
+        <tr><td><code>sa</code></td><td>Simulated annealing on feasible solutions with random moves, geometric cooling and reheating.</td><td>OM23 (simulated annealing framework; OM23 adds a VND after each temperature step, which this version does not).</td></tr>
+        <tr><td><code>tabu</code></td><td>Solution-memory tabu search with aspiration on a randomised candidate set.</td><td>Escobar et al. (2014, additional): granular tabu search inside VNS. Oran et al. (2012, additional): tabu search for VRPTW with priorities. Glover (1989, additional): tabu search, the original formulation.</td></tr>
+        <tr><td><code>ta</code></td><td>Threshold accepting with a shrinking deterministic band.</td><td>Not in the five papers.</td></tr>
+        <tr><td><code>rtr</code></td><td>Record-to-record travel. Excluded from the rc1 campaigns; kept for completeness.</td><td>Not in the five papers.</td></tr>
+        <tr><td><code>msls</code></td><td>Multi-start local search from random priority decodes.</td><td>Not in the five papers.</td></tr>
+        <tr><td><code>alns</code></td><td>Adaptive large neighbourhood search: 3 destroy and 2 repair operators, adaptive roulette weights, annealing acceptance.</td><td>Ropke and Pisinger (2006, additional): the ALNS framework (PDPTW).</td></tr>
+        <tr><td><code>lns</code></td><td>Large neighbourhood search with uniform choice of destroy and repair operators.</td><td>Not in the five papers.</td></tr>
+        <tr><td><code>ig</code></td><td>Iterated greedy: random removal of a fixed fraction, greedy reinsertion, optional acceptance band.</td><td>Not in the five papers.</td></tr>
+        <tr><td><code>ga</code></td><td>Route-decoded genetic algorithm (order crossover, depot gene), memetic with local search.</td><td>MJL16 (memetic algorithm with elitism); Z24 (memetic framework). Marinakis and Marinaki (2008, additional): bilevel GA for a real-life LRP.</td></tr>
+        <tr><td><code>brkga</code></td><td>Biased random-key genetic algorithm with customer-priority, depot and cardinality keys.</td><td>Gonçalves and Resende (2011, additional): BRKGA framework.</td></tr>
+        <tr><td><code>aco</code></td><td>Ant colony optimisation with a priority decoder and customer, depot and cardinality pheromones.</td><td>Dorigo et al. (1996, additional): ant system. Tanash and As'ad (2025, additional): priority-based ACO as first phase, with VNS (VRPTW with priorities, not an LRP).</td></tr>
+        <tr><td><code>grasppr</code></td><td>GRASP with an elite pool; each local optimum is relinked towards an elite solution.</td><td>Prins et al. (2006, additional): GRASP with path relinking for the capacitated LRP.</td></tr>
+        <tr><td><code>scatter</code></td><td>Scatter search: diversified pool, reference set and pairwise path relinking.</td><td>Not in the five papers.</td></tr>
+        <tr><td><code>rkrs</code></td><td>Random-key random search: the decoder of BRKGA, PSO and DE without evolution (control baseline).</td><td>Not in the five papers.</td></tr>
+        <tr><td><code>pso</code></td><td>Random-key particle swarm; velocity clamp 0.5 and positions wrapped modulo 1.</td><td>Kennedy and Eberhart (1995, additional): particle swarm optimisation.</td></tr>
+        <tr><td><code>de</code></td><td>Random-key differential evolution, DE/rand/1/bin.</td><td>Storn and Price (1997, additional): differential evolution.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
   <section class="card" aria-labelledby="h-ls">
-    <div class="step"><span>2</span><h2 id="h-ls">How a local search uses the operators</h2></div>
+    <div class="step"><span>3</span><h2 id="h-ls">Local search operators</h2></div>
     <p>A local search repeatedly scans a <strong>neighbourhood</strong>: the set of solutions reachable with one move of a given operator. It either applies the best improving move (<em>best improvement</em>, the default) or the first one it finds (<em>first improvement</em>). It stops when no operator in the selected set improves the solution.</p>
     <figure class="fig">
       <svg id="fig-flow" viewBox="0 0 640 130" role="img" aria-labelledby="fig-flow-t"></svg>
       <figcaption id="fig-flow-t">Descent loop: pick the next operator, scan its neighbourhood, apply the best improving move, repeat until no operator improves.</figcaption>
     </figure>
-  </section>
-
-  <section class="card" aria-labelledby="h-ops">
-    <div class="step"><span>3</span><h2 id="h-ops">The 14 operators of <code>llrp_fast</code></h2></div>
     <p class="muted">Each card gives the move, its origin, and the closest counterpart in the cited papers. Our block operators (<code>oropt</code>, <code>swap22</code> and the like) generalise the single-customer moves; they are our extension, not taken from the cited papers.</p>
     <div class="family-legend" aria-label="Colour legend">
       <span style="--c:#1f5f8b">customer moves</span>
@@ -49,17 +75,8 @@
     <div id="diagrams" class="diagrams"></div>
   </section>
 
-  <section class="card" aria-labelledby="h-named">
-    <div class="step"><span>5</span><h2 id="h-named">The named neighbourhoods of <code>llrp_native</code></h2></div>
-    <p class="muted">These are the operators used by the metaheuristics (<code>--preset</code>). Each can be combined with a comma list, for example <code>--preset intra_relocate1,intra_2opt</code>.</p>
-    <div class="scroll"><table>
-      <thead><tr><th>Name</th><th>Move</th></tr></thead>
-      <tbody id="named-body"></tbody>
-    </table></div>
-  </section>
-
   <section class="card" aria-labelledby="h-lit">
-    <div class="step"><span>6</span><h2 id="h-lit">Which paper uses which operator</h2></div>
+    <div class="step"><span>5</span><h2 id="h-lit">Operators used in the literature</h2></div>
     <p>Five papers are compared, listed by year. <strong>MJL16</strong> Moshref-Javadi and Lee (2016); <strong>NG22</strong> Nucamendi-Guillén et al. (2022); <strong>OM23</strong> Osorio-Mora et al. (2023, ITOR); <strong>OM23a</strong> Osorio-Mora et al. (2023, COR); <strong>Z24</strong> Zou et al. (2024). Each column is also a preset in the solver's local search section, and <strong>All papers</strong> is the union of the operators that at least one paper describes exactly.</p>
     <div class="scroll"><table class="matrix" id="lit-matrix"></table></div>
     <p class="muted">✓ means the paper describes this move. ≈ means the closest counterpart, with a different definition. — means the paper does not describe it. MJL16 uses Swap, Insertion and 2-Opt in its memetic local search, and Swap, Relocation and 2-Opt in its granular search. NG22 uses Swap, Insertion and 2-opt inside routes, with Exchange and Relocation between routes. OM23 and OM23a describe the same operator set: insertion, swap, 2-opt (with the two-route crossing), arc-swap, shift2-1, and the depot moves of their random phase or perturbations. They differ in the metaheuristic, a simulated annealing with VND in OM23 and an iterated local search in OM23a.</p>
@@ -67,13 +84,27 @@
   </section>
 
   <section class="card" aria-labelledby="h-refs">
-    <div class="step"><span>7</span><h2 id="h-refs">References</h2></div>
+    <div class="step"><span>6</span><h2 id="h-refs">References</h2></div>
     <ol class="refs">
+      <li><strong>Feo, T. A., &amp; Resende, M. G. C. (1995).</strong> Greedy randomized adaptive search procedures. <em>Journal of Global Optimization</em>, 6(2), 109–133. As cited in NG22. <a href="https://doi.org/10.1007/BF01096763">doi:10.1007/BF01096763</a></li>
       <li><strong>MJL16.</strong> Moshref-Javadi, M., &amp; Lee, C. (2016). The latency location-routing problem. <em>European Journal of Operational Research</em>, 255(2), 604–619. <a href="https://doi.org/10.1016/j.ejor.2016.05.048">doi:10.1016/j.ejor.2016.05.048</a></li>
       <li><strong>NG22.</strong> Nucamendi-Guillén, S., Martínez-Salazar, I., Khodaparasti, S., &amp; Bruni, M. E. (2022). New formulations and solution approaches for the latency location routing problem. <em>Computers &amp; Operations Research</em>, 143, 105767. <a href="https://doi.org/10.1016/j.cor.2022.105767">doi:10.1016/j.cor.2022.105767</a></li>
       <li><strong>OM23.</strong> Osorio-Mora, A., Rey, C., Toth, P., &amp; Vigo, D. (2023). Effective metaheuristics for the latency location routing problem. <em>International Transactions in Operational Research</em>, 30, 3801–3832. <a href="https://doi.org/10.1111/itor.13294">doi:10.1111/itor.13294</a></li>
       <li><strong>OM23a.</strong> Osorio-Mora, A., Escobar, J. W., &amp; Toth, P. (2023). An iterated local search algorithm for latency vehicle routing problems with multiple depots. <em>Computers &amp; Operations Research</em>, 158, 106293. <a href="https://doi.org/10.1016/j.cor.2023.106293">doi:10.1016/j.cor.2023.106293</a></li>
       <li><strong>Z24.</strong> Zou, Y., Hao, J.-K., &amp; Wu, Q. (2024). A reinforcement learning guided hybrid evolutionary algorithm for the latency location routing problem. <em>Computers &amp; Operations Research</em>, 170, 106758. <a href="https://doi.org/10.1016/j.cor.2024.106758">doi:10.1016/j.cor.2024.106758</a></li>
+      <li><strong>Additional sources for the heuristics in section 2</strong> (not among the five compared papers):</li>
+      <li><strong>Prins, C., Prodhon, C., &amp; Wolfler Calvo, R. (2006).</strong> Solving the capacitated location-routing problem by a GRASP complemented by a learning process and a path relinking. <em>4OR</em>, 4, 221–238. <a href="https://doi.org/10.1007/s10288-006-0001-9">doi:10.1007/s10288-006-0001-9</a></li>
+      <li><strong>Escobar, J. W., Linfati, R., Baldoquin, M. G., &amp; Toth, P. (2014).</strong> A granular variable tabu neighborhood search for the capacitated location-routing problem. <em>Transportation Research Part B</em>, 67, 344–356. <a href="https://doi.org/10.1016/j.trb.2014.05.014">doi:10.1016/j.trb.2014.05.014</a></li>
+      <li><strong>Oran, A., Tan, K. C., Ooi, B. H., Sim, M., &amp; Jaillet, P. (2012).</strong> Location and routing models for emergency response plans with priorities. In N. Aschenbruck et al. (Eds.), <em>Future Security 2012</em>, CCIS 318, 129–140. Springer. <a href="https://doi.org/10.1007/978-3-642-33161-9_20">doi:10.1007/978-3-642-33161-9_20</a></li>
+      <li><strong>Marinakis, Y., &amp; Marinaki, M. (2008).</strong> A bilevel genetic algorithm for a real life location routing problem. <em>International Journal of Logistics Research and Applications</em>, 11(1), 49–65. <a href="https://doi.org/10.1080/13675560701410144">doi:10.1080/13675560701410144</a></li>
+      <li><strong>Tanash, M., &amp; As'ad, R. (2025).</strong> Heuristic algorithms for the heterogeneous vehicle routing problem with time windows, customers priority, pickup and delivery. <em>IEEE Access</em>, 13, 110605–110622. <a href="https://doi.org/10.1109/ACCESS.2025.3583106">doi:10.1109/ACCESS.2025.3583106</a> (a VRPTW, not an LRP).</li>
+      <li><strong>Glover, F., &amp; Hao, J.-K. (2011).</strong> The case for strategic oscillation. <em>Annals of Operations Research</em>, 183, 163–173. <a href="https://doi.org/10.1007/s10479-009-0597-1">doi:10.1007/s10479-009-0597-1</a></li>
+      <li><strong>Ropke, S., &amp; Pisinger, D. (2006).</strong> An adaptive large neighborhood search heuristic for the pickup and delivery problem with time windows. <em>Transportation Science</em>, 40(4), 455–472. <a href="https://doi.org/10.1287/trsc.1050.0135">doi:10.1287/trsc.1050.0135</a></li>
+      <li><strong>Storn, R., &amp; Price, K. (1997).</strong> Differential evolution – a simple and efficient heuristic for global optimization over continuous spaces. <em>Journal of Global Optimization</em>, 11, 341–359. <a href="https://doi.org/10.1023/A:1008202821328">doi:10.1023/A:1008202821328</a></li>
+      <li><strong>Kennedy, J., &amp; Eberhart, R. (1995).</strong> Particle swarm optimization. <em>Proceedings of the IEEE International Conference on Neural Networks</em>, 4, pages to be confirmed. <a href="https://doi.org/10.1109/ICNN.1995.488968">doi:10.1109/ICNN.1995.488968</a></li>
+      <li><strong>Gonçalves, J. F., &amp; Resende, M. G. C. (2011).</strong> Biased random-key genetic algorithms for combinatorial optimization. <em>Journal of Heuristics</em>, volume and pages to be confirmed. <a href="https://doi.org/10.1007/s10732-010-9143-1">doi:10.1007/s10732-010-9143-1</a></li>
+      <li><strong>Glover, F. (1989).</strong> Tabu search—part I. <em>ORSA Journal on Computing</em>, 1(3), 190–206. <a href="https://doi.org/10.1287/ijoc.1.3.190">doi:10.1287/ijoc.1.3.190</a></li>
+      <li><strong>Dorigo, M., Maniezzo, V., &amp; Colorni, A. (1996).</strong> Ant system: optimization by a colony of cooperating agents. <em>IEEE Transactions on Systems, Man, and Cybernetics, Part B</em>, 26(1), 29–41. <a href="https://doi.org/10.1109/3477.484436">doi:10.1109/3477.484436</a></li>
     </ol>
   </section>
 
