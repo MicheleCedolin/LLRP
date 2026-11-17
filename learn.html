@@ -43,7 +43,7 @@
           <li><strong>Depot limit.</strong> At most <em>p</em> depots are open.</li>
           <li><strong>Single visit.</strong> Every customer is served by exactly one route.</li>
           <li><strong>Vehicle capacity.</strong> The demand on one route is at most the vehicle capacity <em>Q</em>.</li>
-          <li><strong>Route–depot consistency.</strong> A route starts and ends at the same open depot.</li>
+          <li><strong>Open routes.</strong> A route starts at an open depot and ends at its last customer. The return to the depot is not modelled: it does not enter the latency or the distance computed by the solver.</li>
         </ul>
       </div>
       <div>
@@ -74,7 +74,7 @@
     <h3>Notation</h3>
     <div class="eq">I  candidate depots, p  maximum number of open depots
 J  customers, with demand q_j      Q  vehicle capacity
-R  routes; route r starts and ends at depot d(r) and visits customers J_r
+R  routes; route r starts at depot d(r) and visits customers J_r in order
 T_j  arrival time of customer j on its route (latency)
 
 minimise   Σ_j T_j
@@ -82,7 +82,7 @@ minimise   Σ_j T_j
 subject to  Σ_i y_i  ≤  p                 y_i = 1 if depot i is open
             every customer j belongs to exactly one J_r
             Σ_(j in J_r) q_j  ≤  Q          for every route r
-            route r = (d(r), j_1, ..., j_k, d(r)), d(r) open</div>
+            route r = (d(r), j_1, ..., j_k), d(r) open; no return leg</div>
     <p class="muted">The solver does not fix the number of routes: the number of vehicles follows from the solution.</p>
   </section>
 
