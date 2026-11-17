@@ -230,3 +230,5 @@ td.bad, td .bad { color: var(--bad); }
 .map-dot { fill: var(--accent); fill-opacity: 0.75; }
 .map-med { stroke: var(--fg); stroke-width: 2; }
 .map-lbl { fill: var(--muted); font: 12px system-ui, sans-serif; }
+.conv-seed { stroke: var(--accent); stroke-opacity: 0.4; }
+.conv-med { stroke: var(--fg); }

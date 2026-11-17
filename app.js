@@ -259,6 +259,95 @@
       el('p', { class: 'muted', text: 'Sum of route latencies ' + totalLat.toFixed(2) + ' (solver cost ' + best.cost.toFixed(4) + '). Customer numbers are 1-based, as in the instance file.' }));
   }
 
+  // Anytime trace of one run as [seconds, cost] pairs. llrp_fast: trace CSV (name,algo,seed,iter,cpu_s,cost);
+  // llrp_native: "trace_pt seconds trials cost" lines. A last point at the end of the run closes the step line.
+  function parseTrace(fileText, output, wall) {
+    let pts = [];
+    if (fileText) {
+      pts = fileText.split(/\r?\n/).filter(Boolean).map((l) => l.split(',')).filter((f) => f.length >= 6)
+        .map((f) => [Number(f[4]), Number(f[5])]);
+    } else {
+      pts = (output || '').split(/\r?\n/).filter((l) => l.indexOf('trace_pt ') === 0)
+        .map((l) => l.split(/\s+/)).map((t) => [Number(t[1]), Number(t[3])]);
+    }
+    pts = pts.filter((p) => isFinite(p[0]) && isFinite(p[1]));
+    if (pts.length && wall > pts[pts.length - 1][0]) pts.push([wall, pts[pts.length - 1][1]]);
+    return pts;
+  }
+
+  // Convergence of every seed: log-scale gap to the BKS when one is given, otherwise cost. Median over seeds in bold.
+  function drawConvergence(results) {
+    const box = $('conv-chart');
+    box.textContent = '';
+    const runs = results.filter((r) => r.ok && r.trace && r.trace.length);
+    if (!runs.length) { box.append(el('p', { class: 'muted', text: 'No convergence data for these runs.' })); return; }
+    const bks = S.inst.bks;
+    const useGap = isFinite(bks) && bks > 0;
+    const val = (z) => (useGap ? Math.max(0.01, 100 * (z - bks) / bks) : z);
+    const T = Math.max(1e-6, ...runs.map((r) => r.trace[r.trace.length - 1][0]));
+    const series = runs.map((r) => ({ seed: r.seed, pts: r.trace.map(([t, z]) => [t, val(z)]) }));
+    const all = series.flatMap((x) => x.pts.map((p) => p[1]));
+    const W = 480, H = 280, L = 58, R = 12, TP = 12, B = 34;
+    let Y;
+    if (useGap) {
+      const ymin = 0.01, ymax = Math.pow(10, Math.ceil(Math.log10(Math.max(...all, 0.1))));
+      Y = (v) => TP + (1 - (Math.log10(v) - Math.log10(ymin)) / (Math.log10(ymax) - Math.log10(ymin))) * (H - TP - B);
+    } else {
+      const lo = Math.min(...all), hi = Math.max(...all), pad = (hi - lo) * 0.05 || 1;
+      Y = (v) => TP + (1 - (v - (lo - pad)) / ((hi + pad) - (lo - pad))) * (H - TP - B);
+    }
+    const X = (t) => L + (t / T) * (W - L - R);
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Convergence of every seed');
+    if (useGap) {
+      const ymin = 0.01, ymax = Math.pow(10, Math.ceil(Math.log10(Math.max(...all, 0.1))));
+      for (let e = Math.log10(ymin); e <= Math.log10(ymax) + 1e-9; e++) {
+        const v = Math.pow(10, e);
+        svg.append(sv('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), class: 'map-axis', 'stroke-width': 0.6 }),
+          sv('text', { x: L - 6, y: Y(v) + 4, 'text-anchor': 'end', class: 'map-lbl' }, v >= 1 ? String(v) : String(v)));
+      }
+      svg.append(sv('line', { x1: L, x2: W - R, y1: Y(0.01), y2: Y(0.01), class: 'map-ref' }),
+        sv('text', { x: W - R - 4, y: Y(0.01) - 5, 'text-anchor': 'end', class: 'map-lbl' }, 'BKS (drawn at 0.01 %)'));
+    } else {
+      for (let k = 0; k <= 4; k++) {
+        const v = Math.min(...all) + ((Math.max(...all) - Math.min(...all)) * k) / 4;
+        svg.append(sv('text', { x: L - 6, y: Y(v) + 4, 'text-anchor': 'end', class: 'map-lbl' }, String(Math.round(v))));
+      }
+    }
+    for (let k = 0; k <= 4; k++) {
+      const t = (T * k) / 4;
+      svg.append(sv('text', { x: X(t), y: H - B + 16, 'text-anchor': 'middle', class: 'map-lbl' }, t.toFixed(T < 1 ? 3 : T < 10 ? 1 : 0)));
+    }
+    svg.append(sv('line', { x1: L, x2: L, y1: TP, y2: H - B, class: 'map-axis' }), sv('line', { x1: L, x2: W - R, y1: H - B, y2: H - B, class: 'map-axis' }));
+    svg.append(sv('text', { x: (L + W - R) / 2, y: H - 4, 'text-anchor': 'middle', class: 'map-lbl' }, 'seconds'));
+    svg.append(sv('text', { x: 14, y: (TP + H - B) / 2, 'text-anchor': 'middle', class: 'map-lbl', transform: 'rotate(-90 14 ' + (TP + H - B) / 2 + ')' },
+      useGap ? 'gap to BKS (%)' : 'cost'));
+    for (const sr of series) {
+      let d = '';
+      sr.pts.forEach(([t, v], i) => { d += i ? 'H' + X(t).toFixed(1) + 'V' + Y(v).toFixed(1) : 'M' + X(t).toFixed(1) + ' ' + Y(v).toFixed(1); });
+      const last = sr.pts[sr.pts.length - 1];
+      d += 'H' + X(T).toFixed(1);
+      const p = sv('path', { d, fill: 'none', class: 'conv-seed', 'stroke-width': 1.3 });
+      p.append(sv('title', {}, 'seed ' + sr.seed + ': final ' + (useGap ? last[1].toFixed(3) + ' %' : last[1].toFixed(4))));
+      svg.append(p);
+    }
+    // median over seeds on a fine time grid (only where at least half of the seeds have a value)
+    const grid = Array.from({ length: 120 }, (_, i) => (i / 119) * T), med = [];
+    for (const tt of grid) {
+      const vals = [];
+      for (const sr of series) { let v = null; for (const p of sr.pts) { if (p[0] <= tt) v = p[1]; else break; } if (v !== null) vals.push(v); }
+      if (vals.length >= Math.ceil(series.length / 2)) {
+        vals.sort((a, b) => a - b);
+        med.push([tt, vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2]);
+      }
+    }
+    if (med.length) svg.append(sv('path', { d: med.map(([tt, v], i) => (i ? 'L' : 'M') + X(tt).toFixed(1) + ' ' + Y(v).toFixed(1)).join(''), fill: 'none', class: 'conv-med', 'stroke-width': 2.6 }));
+    box.append(svg, el('p', { class: 'muted', text: (useGap ? 'Gap to the best known solution on a log scale' : 'Cost (no best known value given)') +
+      '. Each thin line is one seed; the thick line is the median. Time: wall-clock seconds in your browser (llrp_fast: CPU time).' }));
+  }
+
   // Gap of each run to the best known solution; one dot per seed, median as a bar.
   function drawGapStrip(results) {
     const box = $('gap-strip');
@@ -545,7 +634,8 @@
     const bks = S.inst.bks;
     const gap = (isFinite(bks) && bks > 0 && isFinite(cost)) ? 100 * (cost - bks) / bks : NaN;
     const rtLines = out.split(/\r?\n/).filter((x) => x.indexOf('rt_route ') === 0).join('\n');
-    return { seed, cost, gap, wall: reply.seconds || 0, status: st, ok: st === 'ok', routes: reply.routes || rtLines };
+    const trace = parseTrace(reply.trace, out, reply.seconds || 0);
+    return { seed, cost, gap, wall: reply.seconds || 0, status: st, ok: st === 'ok', routes: reply.routes || rtLines, trace };
   }
 
   function renderResults() {
@@ -632,6 +722,7 @@
       status('Finished: ' + S.results.length + ' run(s). ' + summary(), false);
     }
     drawRouteMap(S.results);
+    drawConvergence(S.results);
     const has = S.results.length > 0;
     $('csv-btn').disabled = !has;
     $('log-btn').disabled = !has;
