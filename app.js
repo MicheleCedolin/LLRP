@@ -24,7 +24,7 @@
     metaOps: [],         // operators.json: meta_named
     presets: {},         // operators.json: presets
     inst: null,          // selected instance record
-    algo: 'llrp_fast',
+    algo: 'grasp',
     fields: [],          // parameter inputs for the current algorithm
     budget: null,        // budget field (metaheuristics only)
     opChecks: [],       // llrp_fast operator checkboxes
@@ -421,8 +421,6 @@
   function fillAlgorithms() {
     const sel = $('algo-select');
     sel.textContent = '';
-    sel.append(el('optgroup', { label: 'Hybrid (C++ core)' },
-      el('option', { value: 'llrp_fast', text: S.llrp.label })));
     const groups = {};
     for (const m of S.methods) {
       if (!groups[m.category]) {
@@ -848,7 +846,7 @@
     bindEvents();
     $('inst-select').value = '0';
     selectInstanceRec(S.instances[0]);
-    selectAlgo('llrp_fast');
+    selectAlgo('grasp');
     status('Ready.');
   }
 

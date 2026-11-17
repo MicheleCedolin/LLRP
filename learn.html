@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LLRP Solver: Learn</title>
 <link rel="stylesheet" href="style.css">
+<style>
+  .hclass { margin: 1.4rem 0 0; padding-top: 1rem; border-top: 1px solid var(--line, #d8dee6); }
+  .hclass h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
+  .hclass h3 .muted { font-weight: 400; font-size: .9rem; }
+  .hclass svg.anim { width: 100%; max-width: 560px; height: auto; display: block; margin: .3rem 0 .7rem; color: var(--fg, #1d2530); }
+  .hclass svg.anim text { fill: var(--fg, #1d2530); }
+</style>
 </head>
 <body>
 <header class="top">
@@ -25,32 +32,115 @@
 
   <section class="card" aria-labelledby="h-heur">
     <div class="step"><span>2</span><h2 id="h-heur">Heuristics in the solver</h2></div>
-    <p>The solver offers the <code>llrp_fast</code> heuristic and 19 metaheuristics. Each metaheuristic is run with the local search operators you choose (section 3). The last column names the paper that uses the same idea: one of the five compared papers, or an additional source listed in section 6 (marked <em>additional</em>). Where the column reads "Not in the five papers" and no additional source is listed yet, the source is still to be added.</p>
-    <div class="scroll"><table>
-      <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
-      <tbody>
-        <tr><td><code>llrp_fast</code></td><td>GRASP construction, randomised variable neighbourhood descent over the selected operators, iterated local search and strategic oscillation.</td><td>GRASP-based ILS as in NG22 (GBILS); strategic oscillation as in Z24, concept in Glover and Hao (2011, additional); GRASP as in Feo and Resende (1995).</td></tr>
-        <tr><td><code>grasp</code></td><td>Randomised greedy construction followed by local search, restarted.</td><td>GRASP: Feo and Resende (1995); constructive phase of NG22. Prins et al. (2006, additional): GRASP with learning and path relinking for the capacitated LRP.</td></tr>
-        <tr><td><code>ils</code></td><td>Random shaking of strength 2, local search, improving acceptance.</td><td>OM23a (iterated local search).</td></tr>
-        <tr><td><code>vns</code></td><td>Shaking with strength k = 1 … kmax, then local search.</td><td>Escobar et al. (2014, additional): VNS with granular tabu search for the CLRP. Tanash and As'ad (2025, additional): VNS as second phase.</td></tr>
-        <tr><td><code>sa</code></td><td>Simulated annealing on feasible solutions with random moves, geometric cooling and reheating.</td><td>OM23 (simulated annealing framework; OM23 adds a VND after each temperature step, which this version does not).</td></tr>
-        <tr><td><code>tabu</code></td><td>Solution-memory tabu search with aspiration on a randomised candidate set.</td><td>Escobar et al. (2014, additional): granular tabu search inside VNS. Oran et al. (2012, additional): tabu search for VRPTW with priorities. Glover (1989, additional): tabu search, the original formulation.</td></tr>
-        <tr><td><code>ta</code></td><td>Threshold accepting with a shrinking deterministic band.</td><td>Not in the five papers.</td></tr>
-        <tr><td><code>rtr</code></td><td>Record-to-record travel. Excluded from the rc1 campaigns; kept for completeness.</td><td>Not in the five papers.</td></tr>
-        <tr><td><code>msls</code></td><td>Multi-start local search from random priority decodes.</td><td>Not in the five papers.</td></tr>
-        <tr><td><code>alns</code></td><td>Adaptive large neighbourhood search: 3 destroy and 2 repair operators, adaptive roulette weights, annealing acceptance.</td><td>Ropke and Pisinger (2006, additional): the ALNS framework (PDPTW).</td></tr>
-        <tr><td><code>lns</code></td><td>Large neighbourhood search with uniform choice of destroy and repair operators.</td><td>Not in the five papers.</td></tr>
-        <tr><td><code>ig</code></td><td>Iterated greedy: random removal of a fixed fraction, greedy reinsertion, optional acceptance band.</td><td>Not in the five papers.</td></tr>
-        <tr><td><code>ga</code></td><td>Route-decoded genetic algorithm (order crossover, depot gene), memetic with local search.</td><td>MJL16 (memetic algorithm with elitism); Z24 (memetic framework). Marinakis and Marinaki (2008, additional): bilevel GA for a real-life LRP.</td></tr>
-        <tr><td><code>brkga</code></td><td>Biased random-key genetic algorithm with customer-priority, depot and cardinality keys.</td><td>Gonçalves and Resende (2011, additional): BRKGA framework.</td></tr>
-        <tr><td><code>aco</code></td><td>Ant colony optimisation with a priority decoder and customer, depot and cardinality pheromones.</td><td>Dorigo et al. (1996, additional): ant system. Tanash and As'ad (2025, additional): priority-based ACO as first phase, with VNS (VRPTW with priorities, not an LRP).</td></tr>
-        <tr><td><code>grasppr</code></td><td>GRASP with an elite pool; each local optimum is relinked towards an elite solution.</td><td>Prins et al. (2006, additional): GRASP with path relinking for the capacitated LRP.</td></tr>
-        <tr><td><code>scatter</code></td><td>Scatter search: diversified pool, reference set and pairwise path relinking.</td><td>Not in the five papers.</td></tr>
-        <tr><td><code>rkrs</code></td><td>Random-key random search: the decoder of BRKGA, PSO and DE without evolution (control baseline).</td><td>Not in the five papers.</td></tr>
-        <tr><td><code>pso</code></td><td>Random-key particle swarm; velocity clamp 0.5 and positions wrapped modulo 1.</td><td>Kennedy and Eberhart (1995, additional): particle swarm optimisation.</td></tr>
-        <tr><td><code>de</code></td><td>Random-key differential evolution, DE/rand/1/bin.</td><td>Storn and Price (1997, additional): differential evolution.</td></tr>
-      </tbody>
-    </table></div>
+    <p>The solver offers 19 metaheuristics. Each one is run with the local search operators you choose (section 3). They are grouped below by the search mechanism they use, not by name. The small animations show the mechanism; they are schematic, not solver traces. The last column names the paper that uses the same idea: one of the five compared papers, or an additional source listed in section 6 (marked <em>additional</em>). "Not in the five papers" means no additional source is listed yet.</p>
+
+    <div class="hclass">
+      <h3>A. Trajectory methods <span class="muted">one current solution, worse moves accepted by a rule</span></h3>
+      <svg class="anim" viewBox="0 0 360 140" role="img" aria-labelledby="ca-t">
+        <title id="ca-t">A point moves along a rugged landscape and crosses uphill ridges.</title>
+        <path d="M12,96 C50,30 96,104 140,46 S232,100 268,34 S324,84 348,62" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="2"/>
+        <path id="ca-path" d="M12,96 C50,30 96,104 140,46 S232,100 268,34 S324,84 348,62" fill="none" stroke="none"/>
+        <circle r="6" fill="#1f5f8b"><animateMotion dur="7s" repeatCount="indefinite" rotate="auto"><mpath href="#ca-path"/></animateMotion></circle>
+        <text x="10" y="136" font-size="11" fill="currentColor">accepts uphill moves by a rule (SA, TA, RTR, ILS kick, tabu memory)</text>
+      </svg>
+      <div class="scroll"><table>
+        <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
+        <tbody>
+          <tr><td><code>sa</code></td><td>Simulated annealing on feasible solutions with random moves, geometric cooling and reheating.</td><td>OM23 (simulated annealing framework; OM23 adds a VND after each temperature step, which this version does not).</td></tr>
+          <tr><td><code>ta</code></td><td>Threshold accepting with a shrinking deterministic band.</td><td>Not in the five papers.</td></tr>
+          <tr><td><code>rtr</code></td><td>Record-to-record travel. Excluded from the rc1 campaigns; kept for completeness.</td><td>Not in the five papers.</td></tr>
+          <tr><td><code>tabu</code></td><td>Solution-memory tabu search with aspiration on a randomised candidate set.</td><td>Escobar et al. (2014, additional): granular tabu search inside VNS. Oran et al. (2012, additional): tabu search for VRPTW with priorities. Glover (1989, additional): tabu search, the original formulation.</td></tr>
+          <tr><td><code>ils</code></td><td>Random shaking of strength 2, local search, improving acceptance.</td><td>OM23a (iterated local search).</td></tr>
+          <tr><td><code>vns</code></td><td>Shaking with strength k = 1 … kmax, then local search.</td><td>Escobar et al. (2014, additional): VNS with granular tabu search for the CLRP. Tanash and As'ad (2025, additional): VNS as second phase.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="hclass">
+      <h3>B. Multi-start and restarts <span class="muted">many independent descents from fresh starts</span></h3>
+      <svg class="anim" viewBox="0 0 360 120" role="img" aria-labelledby="ca-m">
+        <title id="ca-m">Several starts drop to local minima and restart.</title>
+        <path d="M10,30 H350 M10,100 H350" stroke="currentColor" stroke-opacity=".2"/>
+        <circle cx="70" r="6" fill="#1f5f8b"><animate attributeName="cy" values="16;96;96" keyTimes="0;.6;1" dur="4s" repeatCount="indefinite"/></circle>
+        <circle cx="180" r="6" fill="#c2410c"><animate attributeName="cy" values="16;100;100" keyTimes="0;.6;1" dur="4s" begin="-1.3s" repeatCount="indefinite"/></circle>
+        <circle cx="290" r="6" fill="#15803d"><animate attributeName="cy" values="16;92;92" keyTimes="0;.6;1" dur="4s" begin="-2.6s" repeatCount="indefinite"/></circle>
+        <text x="10" y="116" font-size="11" fill="currentColor">each start descends to a local optimum; the best one is kept</text>
+      </svg>
+      <div class="scroll"><table>
+        <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
+        <tbody>
+          <tr><td><code>grasp</code></td><td>Randomised greedy construction followed by local search, restarted.</td><td>Feo and Resende (1995, additional); constructive phase of NG22. Prins et al. (2006, additional): GRASP with learning and path relinking for the capacitated LRP.</td></tr>
+          <tr><td><code>msls</code></td><td>Multi-start local search from random priority decodes.</td><td>Not in the five papers.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="hclass">
+      <h3>C. Destroy and repair <span class="muted">remove part of a solution, then reinsert it</span></h3>
+      <svg class="anim" viewBox="0 0 360 120" role="img" aria-labelledby="ca-d">
+        <title id="ca-d">Customers are removed from a solution and reinserted at new positions.</title>
+        <g fill="#c2410c">
+          <circle cx="50" cy="60" r="7"/><circle cx="110" cy="30" r="7"><animate attributeName="opacity" values="1;.1;.1;1" keyTimes="0;.3;.8;1" dur="5s" repeatCount="indefinite"/></circle>
+          <circle cx="170" cy="90" r="7"/><circle cx="230" cy="40" r="7"><animate attributeName="cx" values="230;300;300;230" keyTimes="0;.3;.8;1" dur="5s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.1;.1;1" keyTimes="0;.3;.8;1" dur="5s" repeatCount="indefinite"/></circle>
+          <circle cx="300" cy="80" r="7"/><circle cx="330" cy="30" r="7"/>
+        </g>
+        <text x="10" y="116" font-size="11" fill="currentColor">destroy: remove a subset; repair: greedy or random reinsertion</text>
+      </svg>
+      <div class="scroll"><table>
+        <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
+        <tbody>
+          <tr><td><code>alns</code></td><td>Adaptive large neighbourhood search: 3 destroy and 2 repair operators, adaptive roulette weights, annealing acceptance.</td><td>Ropke and Pisinger (2006, additional): the ALNS framework (PDPTW).</td></tr>
+          <tr><td><code>lns</code></td><td>Large neighbourhood search with uniform choice of destroy and repair operators.</td><td>Not in the five papers.</td></tr>
+          <tr><td><code>ig</code></td><td>Iterated greedy: random removal of a fixed fraction, greedy reinsertion, optional acceptance band.</td><td>Not in the five papers.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="hclass">
+      <h3>D. Population and elite pool <span class="muted">several solutions that recombine or are relinked</span></h3>
+      <svg class="anim" viewBox="0 0 360 120" role="img" aria-labelledby="ca-p">
+        <title id="ca-p">Two parent solutions combine into a child.</title>
+        <circle cx="40" cy="36" r="8" fill="#1f5f8b"><animate attributeName="cx" values="40;150;150;40" keyTimes="0;.4;.8;1" dur="5s" repeatCount="indefinite"/></circle>
+        <circle cx="40" cy="84" r="8" fill="#c2410c"><animate attributeName="cx" values="40;150;150;40" keyTimes="0;.4;.8;1" dur="5s" repeatCount="indefinite"/></circle>
+        <circle cx="290" cy="60" r="9" fill="#15803d" opacity="0"><animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;.5;.6;.9;1" dur="5s" repeatCount="indefinite"/></circle>
+        <path d="M160,60 H270" stroke="currentColor" stroke-opacity=".4" stroke-dasharray="4 4"><animate attributeName="opacity" values="0;0;1;0" keyTimes="0;.5;.7;1" dur="5s" repeatCount="indefinite"/></path>
+        <text x="10" y="116" font-size="11" fill="currentColor">crossover, path relinking or pool updates produce a new elite solution</text>
+      </svg>
+      <div class="scroll"><table>
+        <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
+        <tbody>
+          <tr><td><code>ga</code></td><td>Route-decoded genetic algorithm (order crossover, depot gene), memetic with local search.</td><td>MJL16 (memetic algorithm with elitism); Z24 (memetic framework). Marinakis and Marinaki (2008, additional): bilevel GA for a real-life LRP.</td></tr>
+          <tr><td><code>aco</code></td><td>Ant colony optimisation with a priority decoder and customer, depot and cardinality pheromones.</td><td>Dorigo et al. (1996, additional): ant system. Tanash and As'ad (2025, additional): priority-based ACO as first phase, with VNS (VRPTW with priorities, not an LRP).</td></tr>
+          <tr><td><code>grasppr</code></td><td>GRASP with an elite pool; each local optimum is relinked towards an elite solution.</td><td>Prins et al. (2006, additional): GRASP with path relinking for the capacitated LRP.</td></tr>
+          <tr><td><code>scatter</code></td><td>Scatter search: diversified pool, reference set and pairwise path relinking.</td><td>Not in the five papers.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="hclass">
+      <h3>E. Random-key search <span class="muted">a continuous key vector is decoded into a solution</span></h3>
+      <svg class="anim" viewBox="0 0 360 120" role="img" aria-labelledby="ca-r">
+        <title id="ca-r">Random keys in [0,1] are sorted to give a customer order.</title>
+        <g>
+          <rect x="30" width="26" y="20" height="80" fill="#1f5f8b"><animate attributeName="height" values="20;70;40;20" dur="4s" repeatCount="indefinite"/><animate attributeName="y" values="80;30;60;80" dur="4s" repeatCount="indefinite"/></rect>
+          <rect x="80" width="26" y="20" height="80" fill="#c2410c"><animate attributeName="height" values="60;15;75;60" dur="4s" repeatCount="indefinite"/><animate attributeName="y" values="40;85;25;40" dur="4s" repeatCount="indefinite"/></rect>
+          <rect x="130" width="26" y="20" height="80" fill="#15803d"><animate attributeName="height" values="30;80;20;30" dur="4s" repeatCount="indefinite"/><animate attributeName="y" values="70;20;80;70" dur="4s" repeatCount="indefinite"/></rect>
+          <rect x="180" width="26" y="20" height="80" fill="#7c3aed"><animate attributeName="height" values="50;35;65;50" dur="4s" repeatCount="indefinite"/><animate attributeName="y" values="50;65;35;50" dur="4s" repeatCount="indefinite"/></rect>
+        </g>
+        <path d="M222,60 H262" stroke="currentColor" stroke-opacity=".5"/>
+        <text x="272" y="64" font-size="11" fill="currentColor">decode</text>
+        <text x="10" y="116" font-size="11" fill="currentColor">the decoder sorts keys to a permutation; the search moves the keys</text>
+      </svg>
+      <div class="scroll"><table>
+        <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
+        <tbody>
+          <tr><td><code>brkga</code></td><td>Biased random-key genetic algorithm with customer-priority, depot and cardinality keys.</td><td>Gonçalves and Resende (2011, additional): BRKGA framework.</td></tr>
+          <tr><td><code>pso</code></td><td>Random-key particle swarm; velocity clamp 0.5 and positions wrapped modulo 1.</td><td>Kennedy and Eberhart (1995, additional): particle swarm optimisation.</td></tr>
+          <tr><td><code>de</code></td><td>Random-key differential evolution, DE/rand/1/bin.</td><td>Storn and Price (1997, additional): differential evolution.</td></tr>
+          <tr><td><code>rkrs</code></td><td>Random-key random search: the decoder of BRKGA, PSO and DE without evolution (control baseline).</td><td>Not in the five papers.</td></tr>
+        </tbody>
+      </table></div>
+    </div>
   </section>
 
   <section class="card" aria-labelledby="h-ls">

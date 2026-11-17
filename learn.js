@@ -269,6 +269,11 @@
 
   // ---------- init ----------
   async function init() {
+    try {
+      if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.querySelectorAll('svg.anim').forEach((s) => s.pauseAnimations && s.pauseAnimations());
+      }
+    } catch (e) { /* motion preference unavailable */ }
     drawFlow();
     renderDiagrams();
     try {
