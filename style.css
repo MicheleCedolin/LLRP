@@ -218,3 +218,15 @@ td.bad, td .bad { color: var(--bad); }
 .matrix td.yes { color: #15803d; font-weight: 700; font-size: 16px; }
 .matrix td.pending { color: #b45309; font-weight: 600; }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; background: var(--c); margin-right: 6px; vertical-align: 0; }
+
+/* Instance map and gap strip (style follows the CLRP lab: customers dots, depots squares) */
+.map-fig { margin: 12px 0 0; }
+.map-fig svg { display: block; width: 100%; max-width: 640px; height: auto; }
+.map-bg { fill: var(--chip); }
+.map-cust { fill: var(--fg); fill-opacity: 0.72; }
+.map-depot { fill: #E8A317; stroke: var(--fg); stroke-width: 1.2; }
+.map-axis { stroke: var(--line); stroke-width: 1.5; }
+.map-ref { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.map-dot { fill: var(--accent); fill-opacity: 0.75; }
+.map-med { stroke: var(--fg); stroke-width: 2; }
+.map-lbl { fill: var(--muted); font: 12px system-ui, sans-serif; }

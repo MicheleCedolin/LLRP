@@ -10,6 +10,7 @@
     { key: 'om2023a', label: 'Osorio-Mora 2023a', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
     { key: 'mjl2016', label: 'Moshref-Javadi 2016', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
     { key: 'ng2022',  label: 'Nucamendi-Guillen 2022', ops: ['relocate', 'swap11', '2opt'] },
+    { key: 'zou2024', label: 'Zou 2024', ops: ['relocate', 'swap11', 'swap21', 'swap22', '2opt', '2opt*', 'swapstar'] },
   ];
 
   const S = {
@@ -105,6 +106,7 @@
     const n = parseInt(head.n, 10), m = parseInt(head.m, 10), Q = parseFloat(head.Q);
     if (!(n > 0) || !(m > 0) || !(Q > 0)) return { error: 'The header must give positive n, m and Q.' };
     let depots = 0, customers = 0, section = 'depots';
+    const geoDep = [], geoCus = [];
     for (i = i + 1; i < lines.length; i++) {
       const t = lines[i];
       if (!t) continue;
@@ -114,7 +116,8 @@
       if (v.length < need || v.slice(0, need).some((x) => !isFinite(Number(x)))) {
         return { error: 'Bad ' + section + ' line: "' + t + '".' };
       }
-      if (section === 'depots') depots++; else customers++;
+      if (section === 'depots') { depots++; geoDep.push([Number(v[0]), Number(v[1])]); }
+      else { customers++; geoCus.push([Number(v[0]), Number(v[1]), Number(v[2])]); }
     }
     if (depots !== m) return { error: 'Expected ' + m + ' depot lines, found ' + depots + '.' };
     if (customers !== n) return { error: 'Expected ' + n + ' customer lines, found ' + customers + '.' };
@@ -125,8 +128,74 @@
         Nv: head.Nv ? Number(head.Nv) : undefined,
         Ng: head.Ng ? Number(head.Ng) : undefined,
         bks: isFinite(bks) ? bks : NaN, text,
+        geo: { depots: geoDep, customers: geoCus },
       },
     };
+  }
+
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  function sv(tag, attrs, text) {
+    const n = document.createElementNS(SVG_NS, tag);
+    for (const k of Object.keys(attrs || {})) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  // Instance map in the style of the CLRP lab: customers as dots, candidate depots as squares.
+  function drawInstMap(rec) {
+    const box = $('inst-map');
+    box.textContent = '';
+    const geo = rec && rec.geo;
+    if (!geo || !geo.customers.length) return;
+    const W = 480, H = 300, P = 14;
+    const pts = geo.customers.concat(geo.depots.map((d) => [d[0], d[1]]));
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const sc = Math.min((W - 2 * P) / ((x1 - x0) || 1), (H - 2 * P) / ((y1 - y0) || 1));
+    const ox = (W - (x1 - x0) * sc) / 2, oy = (H - (y1 - y0) * sc) / 2;
+    const X = (v) => ox + (v - x0) * sc, Y = (v) => H - oy - (v - y0) * sc;
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', rec.n + ' customers and ' + rec.m + ' candidate depots');
+    svg.append(sv('rect', { x: 0, y: 0, width: W, height: H, rx: 6, class: 'map-bg' }));
+    geo.customers.forEach((c, i) => {
+      const dot = sv('circle', { cx: X(c[0]).toFixed(1), cy: Y(c[1]).toFixed(1), r: rec.n > 120 ? 2.2 : 3, class: 'map-cust' });
+      dot.append(sv('title', {}, 'customer ' + (i + 1) + ', demand ' + c[2]));
+      svg.append(dot);
+    });
+    geo.depots.forEach((d, i) => {
+      const sq = sv('rect', { x: (X(d[0]) - 5).toFixed(1), y: (Y(d[1]) - 5).toFixed(1), width: 10, height: 10, class: 'map-depot' });
+      sq.append(sv('title', {}, 'candidate depot ' + (i + 1)));
+      svg.append(sq);
+    });
+    box.append(svg);
+  }
+
+  // Gap of each run to the best known solution; one dot per seed, median as a bar.
+  function drawGapStrip(results) {
+    const box = $('gap-strip');
+    box.textContent = '';
+    const g = results.filter((r) => r.ok && isFinite(r.gap)).map((r) => ({ seed: r.seed, v: r.gap }));
+    if (g.length < 2) return;
+    const W = 480, H = 80, L = 16, R = 16;
+    const lo = Math.min(0, ...g.map((x) => x.v)), hi = Math.max(0.01, ...g.map((x) => x.v));
+    const X = (v) => L + ((v - lo) / ((hi - lo) || 1)) * (W - L - R);
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Gap of each run to the best known solution');
+    svg.append(sv('line', { x1: L, x2: W - R, y1: 46, y2: 46, class: 'map-axis' }));
+    if (lo <= 0) svg.append(sv('line', { x1: X(0), x2: X(0), y1: 16, y2: 60, class: 'map-ref' }), sv('text', { x: X(0) + 4, y: 14, class: 'map-lbl' }, 'BKS'));
+    g.forEach((p, i) => {
+      const dot = sv('circle', { cx: X(p.v).toFixed(1), cy: 46 - ((i % 3) - 1) * 7, r: 4, class: 'map-dot' });
+      dot.append(sv('title', {}, 'seed ' + p.seed + ': ' + p.v.toFixed(3) + ' %'));
+      svg.append(dot);
+    });
+    const vals = g.map((x) => x.v).sort((a, b) => a - b);
+    const med = vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2;
+    svg.append(sv('line', { x1: X(med), x2: X(med), y1: 30, y2: 62, class: 'map-med' }), sv('text', { x: X(med), y: 76, 'text-anchor': 'middle', class: 'map-lbl' }, 'median ' + med.toFixed(2) + ' %'));
+    box.append(svg);
   }
 
   function renderFacts(rec) {
@@ -145,7 +214,9 @@
 
   function selectInstanceRec(rec) {
     S.inst = rec;
+    if (!rec.geo && rec.text) { const p = parseInstance(rec.text); if (p.rec) rec.geo = p.rec.geo; }
     renderFacts(rec);
+    drawInstMap(rec);
     updateEstimate();
   }
 
@@ -392,6 +463,7 @@
   function renderResults() {
     const tb = $('results');
     tb.textContent = '';
+    drawGapStrip(S.results);
     if (!S.results.length) {
       tb.append(el('tr', {}, el('td', { colspan: '5', class: 'muted', text: 'No runs yet.' })));
       return;

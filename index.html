@@ -31,6 +31,10 @@
     </div>
     <p class="msg" id="inst-msg" role="status"></p>
     <dl class="facts" id="inst-facts"></dl>
+    <figure class="fig map-fig">
+      <div id="inst-map"></div>
+      <figcaption>Customers are dots and candidate depots are squares, drawn from the instance file. Hover a point for its data.</figcaption>
+    </figure>
   </section>
 
   <section class="card" aria-labelledby="h-algo">
@@ -116,6 +120,10 @@
 
   <section class="card" aria-labelledby="h-results">
     <div class="step"><span>5</span><h2 id="h-results">Results</h2></div>
+    <figure class="fig map-fig" id="gap-fig">
+      <div id="gap-strip"></div>
+      <figcaption>Gap to the best known solution, one dot per successful seed (the BKS line is at 0 %).</figcaption>
+    </figure>
     <div class="scroll">
       <table>
         <thead><tr><th>Seed</th><th>Cost</th><th>Gap to BKS</th><th>Wall time</th><th>Status</th></tr></thead>

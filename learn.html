@@ -73,7 +73,9 @@
     <div class="step"><span>7</span><h2 id="h-lit">Which paper uses which operator</h2></div>
     <p>The presets in the solver follow the neighbourhoods reported in the cited LLRP papers. A tick means the paper's text describes that move; a dash means it is not in the paper. Our block moves and Swap* are not in these papers.</p>
     <div class="scroll"><table class="matrix" id="lit-matrix"></table></div>
-    <p class="muted">Osorio-Mora et al. (2023a) also list arc-swap and shift2-1, which <code>llrp_fast</code> does not implement yet. Zou et al. (2024) use seven neighbourhoods explored in a Q-learning order; their exact list is still to be transcribed from Section 2.6, so no preset is built from it yet. Ticks for Moshref-Javadi and Lee (2016) follow their description of the mutation and local-search moves, which includes inter-route effects of 2-opt.</p>
+    <p class="muted">A tick (✓) means the paper's neighbourhood matches the <code>llrp_fast</code> operator; ≈ means the closest counterpart with a different definition. Osorio-Mora et al. (2023a) also list arc-swap and shift2-1, which <code>llrp_fast</code> does not implement yet. Ticks for Moshref-Javadi and Lee (2016) follow their description of the mutation and local-search moves, which includes inter-route effects of 2-opt.</p>
+    <p><strong>Zou et al. (2024), RL-SOVND (Algorithm 2, Section 2.6.3).</strong> The local search explores seven neighbourhoods in an order learned by Q-learning, with first improvement inside each neighbourhood and strategic oscillation around the feasibility boundary. The seven are: N1 relocate one customer; N2 swap two nodes of the same type (customers, or depots); N3 2-opt inside a route and 2-opt* between routes; N4 relocate two consecutive customers; N5 swap a customer with an arc (two consecutive customers); N6 swap two arcs; N7 Swap* between two routes, executed only when the customer sets overlap. Neighbourhoods are limited to the δ nearest vertices. The depot-swap mutation and the ejection chain of Section 2.5 are not local-search moves and are not in the table.</p>
+    <p class="muted">Matching for <code>llrp_fast</code>: N4 is approximated by <code>oropt2</code>, which moves one contiguous block instead of two customers to separate positions. N5 and N6 are matched to the block operators <code>swap21</code> and <code>swap22</code>. Neither the depot swap nor the δ-nearest restriction is implemented. A Zou-based preset (<code>Zou 2024</code>) uses the seven operators that match exactly.</p>
   </section>
 
   <section class="card" aria-labelledby="h-refs">
@@ -81,7 +83,7 @@
     <ol class="refs">
       <li>Osorio-Mora, A. et al. (2023). Intl. Trans. in Op. Res. 30(6), 3801-3832. Section 3.3 (insertion, swap, 2-opt, arc-swap, shift2-1), Section 3.4 (VND), Algorithm 3 (random move selection with depot open/close, route swap and route relocation). <em>Author list to be checked against the PDF.</em></li>
       <li>Osorio-Mora, A. et al. (2023a). Computers &amp; Operations Research 158, 106293. M-ILS for LLRP, MDCCVRP and MDkTRP.</li>
-      <li>Zou, J., Hao, J.-K., Wu, Q. (2024). Computers &amp; Operations Research 170, 106758. RLHEA: Q-learning guided VND and strategic oscillation.</li>
+      <li>Zou, Y. et al. (2024). Computers &amp; Operations Research 170, 106758. RLHEA; RL-SOVND in Algorithm 2 and Section 2.6.3 (seven neighbourhoods N1-N7). <em>Full author list to be checked against the PDF.</em></li>
       <li>Moshref-Javadi, M., Lee, C. (2016). European Journal of Operational Research. doi:10.1016/j.ejor.2016.05.048. Swap, 2-opt and insertion as mutation and local-search operators.</li>
       <li>Nucamendi-Guillén, S. et al. (2022). Computers &amp; Operations Research 143, 105767. Exact methods, formulations and GBILS for LLRP.</li>
       <li>Vincent et al. (2010). Insertion and swap neighbourhoods for the capacitated location-routing problem (CLRP).</li>

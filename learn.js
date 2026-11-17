@@ -47,11 +47,18 @@
   };
 
   // Which llrp_fast operators each cited paper describes (see Section 7 of the page).
+  // ops: exact correspondence. approx: closest counterpart, not the same move.
+  // Zou et al. (2024), Section 2.6.3, seven neighbourhoods N1-N7 of RL-SOVND:
+  //   N1 relocate -> relocate; N2 swap -> swap11 (customer part; the depot swap has no counterpart);
+  //   N3 2-opt / 2-opt* -> 2opt, 2opt*; N4 2-relocate -> oropt2 (approx.: Zou moves two customers
+  //   to separate positions, oropt2 moves one contiguous block); N5 node-arc swap -> swap21;
+  //   N6 arc-arc swap -> swap22; N7 Swap* -> swapstar (executed only when customer sets overlap).
   const LIT_COLS = [
     { key: 'om2023',  label: 'Osorio-Mora 2023',  ops: ['relocate', 'swap11', '2opt', '2opt*', 'dexch', 'rdepot', 'ds'] },
     { key: 'om2023a', label: 'Osorio-Mora 2023a', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
     { key: 'mjl2016', label: 'Moshref-Javadi 2016', ops: ['relocate', 'swap11', '2opt', '2opt*'] },
     { key: 'ng2022',  label: 'Nucamendi-Guillén 2022', ops: ['relocate', 'swap11', '2opt'] },
+    { key: 'zou2024', label: 'Zou 2024', ops: ['relocate', 'swap11', 'swap21', 'swap22', '2opt', '2opt*', 'swapstar'], approx: ['oropt2'] },
   ];
 
   // ---------- SVG helpers ----------
@@ -149,7 +156,7 @@
     const t = $('lit-matrix');
     t.textContent = '';
     const head = document.createElement('tr');
-    for (const txt of ['Operator', 'Family'].concat(LIT_COLS.map((c) => c.label), ['Zou 2024'])) {
+    for (const txt of ['Operator', 'Family'].concat(LIT_COLS.map((c) => c.label))) {
       const th = document.createElement('th');
       th.textContent = txt;
       head.append(th);
@@ -180,16 +187,21 @@
         const c = document.createElement('td');
         c.className = 'tick';
         const yes = col.ops.includes(op.id);
-        c.textContent = yes ? '✓' : '—';
-        c.setAttribute('aria-label', yes ? 'yes' : 'no');
-        if (yes) c.classList.add('yes');
+        const approx = !yes && (col.approx || []).includes(op.id);
+        if (yes) {
+          c.textContent = '✓';
+          c.setAttribute('aria-label', 'yes');
+          c.classList.add('yes');
+        } else if (approx) {
+          c.textContent = '≈';
+          c.setAttribute('aria-label', 'approximate counterpart');
+          c.classList.add('yes');
+        } else {
+          c.textContent = '—';
+          c.setAttribute('aria-label', 'no');
+        }
         tr.append(c);
       }
-      const z = document.createElement('td');
-      z.className = 'tick pending';
-      z.textContent = '?';
-      z.setAttribute('aria-label', 'to be transcribed');
-      tr.append(z);
       body.append(tr);
     }
     t.append(body);
