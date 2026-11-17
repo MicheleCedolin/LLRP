@@ -174,8 +174,17 @@
 
   // Routes of the best run, from the solver's routes file (name,algo,seed,route,depot,customers,arrivals,length,load,latency,distance).
   const ROUTE_PAL = ['#0072B2', '#D55E00', '#009E73', '#CC79A7', '#E69F00', '#56B4E9', '#7A5195', '#8C8C1F'];
-  function parseRoutes(text) {
+  // Two formats: llrp_fast writes a CSV file; llrp_native prints one "rt_route" line per route.
+  function parseRoutes(text, geo) {
     return (text || '').split(/\r?\n/).filter(Boolean).map((line) => {
+      if (line.indexOf('rt_route ') === 0) {
+        const t = line.split(/\s+/);
+        const depot = Number(t[2]);
+        const s = t.indexOf('seq'), l = t.indexOf('latency');
+        const cust = t.slice(s + 1, l).map(Number);
+        const load = geo ? cust.reduce((a, c) => a + geo.customers[c][2], 0) : NaN;
+        return { rid: 0, depot, cust, n: cust.length, load, latency: Number(t[l + 1]), dist: NaN };
+      }
       const f = line.split(',');
       if (f.length < 11) return null;
       return {
@@ -183,7 +192,7 @@
         cust: f[5].split('->').map((x) => Number(x.trim())),
         n: Number(f[7]), load: Number(f[8]), latency: Number(f[9]), dist: Number(f[10]),
       };
-    }).filter(Boolean);
+    }).filter(Boolean).map((r, i) => Object.assign(r, { rid: r.rid || i + 1 }));
   }
 
   function drawRouteMap(results) {
@@ -194,11 +203,11 @@
     const geo = S.inst && S.inst.geo;
     const ok = results.filter((r) => r.ok && isFinite(r.cost) && r.routes);
     if (!ok.length || !geo) {
-      box.append(el('p', { class: 'muted', text: 'The route map is drawn for llrp_fast runs. The metaheuristics do not write their routes yet.' }));
+      box.append(el('p', { class: 'muted', text: 'No routes were returned by the solver for this run.' }));
       return;
     }
     const best = ok.reduce((a, b) => (b.cost < a.cost ? b : a));
-    const routes = parseRoutes(best.routes);
+    const routes = parseRoutes(best.routes, geo);
     if (!routes.length) return;
     const W = 480, H = 300, P = 14;
     const pts = geo.customers.map((c) => [c[0], c[1]]).concat(geo.depots);
@@ -244,7 +253,7 @@
     const rows = routes.map((r) => el('tr', {},
       el('td', { text: String(r.rid) }), el('td', { text: String(r.depot + 1) }),
       el('td', { text: r.cust.map((c) => c + 1).join(' ') }), el('td', { text: String(r.load) }),
-      el('td', { text: String(r.latency) }), el('td', { text: String(r.dist) })));
+      el('td', { text: String(r.latency) }), el('td', { text: isFinite(r.dist) ? String(r.dist) : '-' })));
     const totalLat = routes.reduce((a, r) => a + r.latency, 0);
     tbl.append(el('div', { class: 'scroll' }, el('table', {}, el('thead', {}, head), el('tbody', {}, ...rows))),
       el('p', { class: 'muted', text: 'Sum of route latencies ' + totalLat.toFixed(2) + ' (solver cost ' + best.cost.toFixed(4) + '). Customer numbers are 1-based, as in the instance file.' }));
@@ -535,7 +544,8 @@
     else if (feas && feas[1] === '0') st = 'infeasible';
     const bks = S.inst.bks;
     const gap = (isFinite(bks) && bks > 0 && isFinite(cost)) ? 100 * (cost - bks) / bks : NaN;
-    return { seed, cost, gap, wall: reply.seconds || 0, status: st, ok: st === 'ok', routes: reply.routes || '' };
+    const rtLines = out.split(/\r?\n/).filter((x) => x.indexOf('rt_route ') === 0).join('\n');
+    return { seed, cost, gap, wall: reply.seconds || 0, status: st, ok: st === 'ok', routes: reply.routes || rtLines };
   }
 
   function renderResults() {
