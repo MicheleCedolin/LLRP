@@ -172,6 +172,84 @@
     box.append(svg);
   }
 
+  // Routes of the best run, from the solver's routes file (name,algo,seed,route,depot,customers,arrivals,length,load,latency,distance).
+  const ROUTE_PAL = ['#0072B2', '#D55E00', '#009E73', '#CC79A7', '#E69F00', '#56B4E9', '#7A5195', '#8C8C1F'];
+  function parseRoutes(text) {
+    return (text || '').split(/\r?\n/).filter(Boolean).map((line) => {
+      const f = line.split(',');
+      if (f.length < 11) return null;
+      return {
+        rid: Number(f[3]), depot: Number(f[4]),
+        cust: f[5].split('->').map((x) => Number(x.trim())),
+        n: Number(f[7]), load: Number(f[8]), latency: Number(f[9]), dist: Number(f[10]),
+      };
+    }).filter(Boolean);
+  }
+
+  function drawRouteMap(results) {
+    const box = $('route-map');
+    const tbl = $('route-table');
+    box.textContent = '';
+    tbl.textContent = '';
+    const geo = S.inst && S.inst.geo;
+    const ok = results.filter((r) => r.ok && isFinite(r.cost) && r.routes);
+    if (!ok.length || !geo) {
+      box.append(el('p', { class: 'muted', text: 'The route map is drawn for llrp_fast runs. The metaheuristics do not write their routes yet.' }));
+      return;
+    }
+    const best = ok.reduce((a, b) => (b.cost < a.cost ? b : a));
+    const routes = parseRoutes(best.routes);
+    if (!routes.length) return;
+    const W = 480, H = 300, P = 14;
+    const pts = geo.customers.map((c) => [c[0], c[1]]).concat(geo.depots);
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    const sc = Math.min((W - 2 * P) / ((x1 - x0) || 1), (H - 2 * P) / ((y1 - y0) || 1));
+    const ox = (W - (x1 - x0) * sc) / 2, oy = (H - (y1 - y0) * sc) / 2;
+    const X = (v) => ox + (v - x0) * sc, Y = (v) => H - oy - (v - y0) * sc;
+    const color = {};
+    routes.forEach((r) => { if (!(r.depot in color)) color[r.depot] = ROUTE_PAL[Object.keys(color).length % ROUTE_PAL.length]; });
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Routes of the best run, seed ' + best.seed);
+    svg.append(sv('rect', { x: 0, y: 0, width: W, height: H, rx: 6, class: 'map-bg' }));
+    for (const r of routes) {
+      const d = geo.depots[r.depot];
+      const path = [d].concat(r.cust.map((c) => geo.customers[c])).concat([d]);
+      const p = sv('path', {
+        d: path.map((q, i) => (i ? 'L' : 'M') + X(q[0]).toFixed(1) + ' ' + Y(q[1]).toFixed(1)).join(''),
+        fill: 'none', stroke: color[r.depot], 'stroke-width': 1.8, 'stroke-linejoin': 'round', 'stroke-opacity': 0.9,
+      });
+      p.append(sv('title', {}, 'route ' + r.rid + ' from depot ' + (r.depot + 1) + ': ' + r.n + ' customers, load ' + r.load + ', latency ' + r.latency));
+      svg.append(p);
+    }
+    geo.customers.forEach((c, i) => {
+      const dot = sv('circle', { cx: X(c[0]).toFixed(1), cy: Y(c[1]).toFixed(1), r: geo.customers.length > 120 ? 2.2 : 3, class: 'map-cust' });
+      dot.append(sv('title', {}, 'customer ' + (i + 1) + ', demand ' + c[2]));
+      svg.append(dot);
+    });
+    geo.depots.forEach((d, i) => {
+      const open = i in color;
+      const sz = open ? 12 : 9;
+      const sq = sv('rect', { x: (X(d[0]) - sz / 2).toFixed(1), y: (Y(d[1]) - sz / 2).toFixed(1), width: sz, height: sz,
+        fill: open ? color[i] : 'none', stroke: open ? '#10252E' : '#7F9199', 'stroke-width': open ? 2 : 1.5,
+        'stroke-dasharray': open ? '' : '3 2' });
+      sq.append(sv('title', {}, 'depot ' + (i + 1) + (open ? ' (open)' : ' (closed)')));
+      svg.append(sq);
+      if (open) svg.append(sv('text', { x: (X(d[0]) + 9).toFixed(1), y: (Y(d[1]) - 8).toFixed(1), class: 'map-lbl' }, String(i + 1)));
+    });
+    box.append(svg, el('p', { class: 'muted', text: 'Seed ' + best.seed + ' (lowest cost of ' + ok.length + ' successful run(s)). Filled squares are open depots, dashed squares are closed candidates.' }));
+    const head = el('tr', {}, ...['Route', 'Depot', 'Customers', 'Load', 'Latency', 'Length'].map((t) => el('th', { text: t })));
+    const rows = routes.map((r) => el('tr', {},
+      el('td', { text: String(r.rid) }), el('td', { text: String(r.depot + 1) }),
+      el('td', { text: r.cust.map((c) => c + 1).join(' ') }), el('td', { text: String(r.load) }),
+      el('td', { text: String(r.latency) }), el('td', { text: String(r.dist) })));
+    const totalLat = routes.reduce((a, r) => a + r.latency, 0);
+    tbl.append(el('div', { class: 'scroll' }, el('table', {}, el('thead', {}, head), el('tbody', {}, ...rows))),
+      el('p', { class: 'muted', text: 'Sum of route latencies ' + totalLat.toFixed(2) + ' (solver cost ' + best.cost.toFixed(4) + '). Customer numbers are 1-based, as in the instance file.' }));
+  }
+
   // Gap of each run to the best known solution; one dot per seed, median as a bar.
   function drawGapStrip(results) {
     const box = $('gap-strip');
@@ -457,7 +535,7 @@
     else if (feas && feas[1] === '0') st = 'infeasible';
     const bks = S.inst.bks;
     const gap = (isFinite(bks) && bks > 0 && isFinite(cost)) ? 100 * (cost - bks) / bks : NaN;
-    return { seed, cost, gap, wall: reply.seconds || 0, status: st, ok: st === 'ok' };
+    return { seed, cost, gap, wall: reply.seconds || 0, status: st, ok: st === 'ok', routes: reply.routes || '' };
   }
 
   function renderResults() {
@@ -521,7 +599,8 @@
     for (let k = 0; k < total; k++) {
       if (S.cancelled) break;
       const seed = plan.seeds[k];
-      const args = plan.argsFor(seed);
+      let args = plan.argsFor(seed);
+      if (plan.solver === 'llrp_fast') args = args.concat(['--out', '/r', '--out-level', '1']);
       status('Running seed ' + seed + ' (' + (k + 1) + ' of ' + total + ')...');
       const reply = await callWorker(plan.solver, S.inst.text, args);
       if (S.cancelled) break;
@@ -542,6 +621,7 @@
     } else {
       status('Finished: ' + S.results.length + ' run(s). ' + summary(), false);
     }
+    drawRouteMap(S.results);
     const has = S.results.length > 0;
     $('csv-btn').disabled = !has;
     $('log-btn').disabled = !has;

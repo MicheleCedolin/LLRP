@@ -19,6 +19,7 @@ self.onmessage = async (e) => {
   const out = [];
   const t0 = performance.now();
   let rc = -1;
+  let routes = '';
   try {
     const wasmBinary = await wasmBytes(solver);
     const M = await factory({
@@ -29,8 +30,10 @@ self.onmessage = async (e) => {
     M.FS.writeFile('/instance.inst', instanceText);
     const line = ['--instance', '/instance.inst'].concat(args).join(' ');
     rc = M.ccall('run_cli', 'number', ['string'], [line]);
+    // --out /r writes /r.routes.csv into the in-memory file system of this run (llrp_fast only)
+    try { routes = M.FS.readFile('/r.routes.csv', { encoding: 'utf8' }); } catch (_) { routes = ''; }
   } catch (err) {
     out.push('[error] ' + (err && err.message ? err.message : String(err)));
   }
-  self.postMessage({ id, rc, output: out.join('\n'), seconds: (performance.now() - t0) / 1000 });
+  self.postMessage({ id, rc, output: out.join('\n'), routes, seconds: (performance.now() - t0) / 1000 });
 };
