@@ -70,7 +70,7 @@
         <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
         <tbody>
           <tr><td><code>grasp</code></td><td>Randomised greedy construction followed by local search, restarted.</td><td>Feo and Resende (1995, additional); constructive phase of NG22. Prins et al. (2006, additional): GRASP with learning and path relinking for the capacitated LRP.</td></tr>
-          <tr><td><code>msls</code></td><td>Multi-start local search from random priority decodes.</td><td>Not in the five papers.</td></tr>
+          <tr><td><code>msls</code></td><td>Multi-start local search from random priority decodes.</td><td>Martí, Resende and Ribeiro (2013, additional): multi-start methods for combinatorial optimisation.</td></tr>
         </tbody>
       </table></div>
     </div>
@@ -90,8 +90,8 @@
         <thead><tr><th>Heuristic</th><th>What it does</th><th>Literature</th></tr></thead>
         <tbody>
           <tr><td><code>alns</code></td><td>Adaptive large neighbourhood search: 3 destroy and 2 repair operators, adaptive roulette weights, annealing acceptance.</td><td>Ropke and Pisinger (2006, additional): the ALNS framework (PDPTW).</td></tr>
-          <tr><td><code>lns</code></td><td>Large neighbourhood search with uniform choice of destroy and repair operators.</td><td>Not in the five papers.</td></tr>
-          <tr><td><code>ig</code></td><td>Iterated greedy: random removal of a fixed fraction, greedy reinsertion, optional acceptance band.</td><td>Not in the five papers.</td></tr>
+          <tr><td><code>lns</code></td><td>Large neighbourhood search with uniform choice of destroy and repair operators.</td><td>Shaw (1998, additional): large neighbourhood search with constraint programming for VRP.</td></tr>
+          <tr><td><code>ig</code></td><td>Iterated greedy: random removal of a fixed fraction, greedy reinsertion, optional acceptance band.</td><td>Ruiz and Stützle (2007, additional): iterated greedy for the permutation flowshop.</td></tr>
         </tbody>
       </table></div>
     </div>
@@ -112,7 +112,7 @@
           <tr><td><code>ga</code></td><td>Route-decoded genetic algorithm (order crossover, depot gene), memetic with local search.</td><td>MJL16 (memetic algorithm with elitism); Z24 (memetic framework). Marinakis and Marinaki (2008, additional): bilevel GA for a real-life LRP.</td></tr>
           <tr><td><code>aco</code></td><td>Ant colony optimisation with a priority decoder and customer, depot and cardinality pheromones.</td><td>Dorigo et al. (1996, additional): ant system. Tanash and As'ad (2025, additional): priority-based ACO as first phase, with VNS (VRPTW with priorities, not an LRP).</td></tr>
           <tr><td><code>grasppr</code></td><td>GRASP with an elite pool; each local optimum is relinked towards an elite solution.</td><td>Prins et al. (2006, additional): GRASP with path relinking for the capacitated LRP.</td></tr>
-          <tr><td><code>scatter</code></td><td>Scatter search: diversified pool, reference set and pairwise path relinking.</td><td>Not in the five papers.</td></tr>
+          <tr><td><code>scatter</code></td><td>Scatter search: diversified pool, reference set and pairwise path relinking.</td><td>Glover (1998, additional): template for scatter search and path relinking.</td></tr>
         </tbody>
       </table></div>
     </div>
@@ -137,7 +137,7 @@
           <tr><td><code>brkga</code></td><td>Biased random-key genetic algorithm with customer-priority, depot and cardinality keys.</td><td>Gonçalves and Resende (2011, additional): BRKGA framework.</td></tr>
           <tr><td><code>pso</code></td><td>Random-key particle swarm; velocity clamp 0.5 and positions wrapped modulo 1.</td><td>Kennedy and Eberhart (1995, additional): particle swarm optimisation.</td></tr>
           <tr><td><code>de</code></td><td>Random-key differential evolution, DE/rand/1/bin.</td><td>Storn and Price (1997, additional): differential evolution.</td></tr>
-          <tr><td><code>rkrs</code></td><td>Random-key random search: the decoder of BRKGA, PSO and DE without evolution (control baseline).</td><td>Not in the five papers.</td></tr>
+          <tr><td><code>rkrs</code></td><td>Random-key random search: the decoder of BRKGA, PSO and DE without evolution (control baseline).</td><td>Not a published method: the solver's own control baseline, sharing the decoder of BRKGA, PSO and DE.</td></tr>
         </tbody>
       </table></div>
     </div>
@@ -195,6 +195,10 @@
       <li><strong>Gonçalves, J. F., &amp; Resende, M. G. C. (2011).</strong> Biased random-key genetic algorithms for combinatorial optimization. <em>Journal of Heuristics</em>, volume and pages to be confirmed. <a href="https://doi.org/10.1007/s10732-010-9143-1">doi:10.1007/s10732-010-9143-1</a></li>
       <li><strong>Glover, F. (1989).</strong> Tabu search—part I. <em>ORSA Journal on Computing</em>, 1(3), 190–206. <a href="https://doi.org/10.1287/ijoc.1.3.190">doi:10.1287/ijoc.1.3.190</a></li>
       <li><strong>Dorigo, M., Maniezzo, V., &amp; Colorni, A. (1996).</strong> Ant system: optimization by a colony of cooperating agents. <em>IEEE Transactions on Systems, Man, and Cybernetics, Part B</em>, 26(1), 29–41. <a href="https://doi.org/10.1109/3477.484436">doi:10.1109/3477.484436</a></li>
+      <li><strong>Martí, R., Resende, M. G. C., &amp; Ribeiro, C. C. (2013).</strong> Multi-start methods for combinatorial optimization. <em>European Journal of Operational Research</em>, 226(1), 1–8. <a href="https://doi.org/10.1016/j.ejor.2012.10.012">doi:10.1016/j.ejor.2012.10.012</a></li>
+      <li><strong>Shaw, P. (1998).</strong> Using constraint programming and local search methods to solve vehicle routing problems. In M. Maher &amp; J.-F. Puget (Eds.), <em>Principles and Practice of Constraint Programming (CP98)</em>, LNCS 1520. <a href="https://doi.org/10.1007/3-540-49481-2_30">doi:10.1007/3-540-49481-2_30</a></li>
+      <li><strong>Glover, F. (1998).</strong> A template for scatter search and path relinking. <em>Artificial Evolution (AE 1997)</em>, LNCS 1363, 1–51. <a href="https://doi.org/10.1007/BFb0026589">doi:10.1007/BFb0026589</a></li>
+      <li><strong>Ruiz, R., &amp; Stützle, T. (2007).</strong> A simple and effective iterated greedy algorithm for the permutation flowshop scheduling problem. <em>European Journal of Operational Research</em>, 177(3), 2033–2049. DOI to be confirmed.</li>
     </ol>
   </section>
 
