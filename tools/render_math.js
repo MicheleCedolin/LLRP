@@ -29,6 +29,26 @@ const BLOCKS = {
       &|R| \le N_v && \text{(fleet size)}
     \end{aligned}`)}</div>
     <p class="muted">The factor ${M('k_r-s+1')} counts the customers whose arrival time includes the arc into position ${M('s')}. Both ${M('p')} and ${M('N_v')} are upper bounds. Because travel times satisfy the triangle inequality and the return leg is free, splitting a route never increases latency, so an optimal solution uses ${M('\\min\\{N_v,\\,|J|\\}')} routes (Osorio-Mora et al., 2023).</p>`,
+  milp: () => `
+    <p>A compact arc-based mixed-integer model is given below (network-flow idea of Moshref-Javadi and Lee, 2016, with one set of arc variables, no vehicle index and an explicit fleet bound). Arrival times and loads are propagated along the chosen arcs with big-M constraints.</p>
+    <dl class="notation">
+      <div><dt>${M('x_{uv}')}</dt><dd>${M('1')} if customer ${M('v\\in J')} is visited right after node ${M('u\\in V')} (a depot if ${M('u\\in I')}), else ${M('0')}</dd></div>
+      <div><dt>${M('y_i')}</dt><dd>${M('1')} if depot ${M('i\\in I')} is open, else ${M('0')}</dd></div>
+      <div><dt>${M('t_j')}</dt><dd>arrival time at customer ${M('j')}, ${M('t_j\\ge 0')}</dd></div>
+      <div><dt>${M('l_j')}</dt><dd>load carried up to and including ${M('j')}, ${M('q_j\\le l_j\\le Q')}</dd></div>
+    </dl>
+    <div class="math-box">${D(String.raw`\begin{aligned}
+      \min\;& \sum_{j\in J} t_j \\[4pt]
+      \text{s.t.}\;& \sum_{u\in V\setminus\{j\}} x_{uj} = 1 && \forall j\in J && (1)\\
+      & \sum_{k\in J\setminus\{j\}} x_{jk} \le 1 && \forall j\in J && (2)\\
+      & x_{ij} \le y_i && \forall i\in I,\ j\in J && (3)\\
+      & \sum_{i\in I} y_i \le p && && (4)\\
+      & \sum_{i\in I}\sum_{j\in J} x_{ij} \le N_v && && (5)\\
+      & t_j \ge c_{ij} - M\,(1-x_{ij}) && \forall i\in I,\ j\in J && (6)\\
+      & t_k \ge t_j + c_{jk} - M\,(1-x_{jk}) && \forall j,k\in J,\ j\ne k && (7)\\
+      & l_k \ge l_j + q_k - Q\,(1-x_{jk}) && \forall j,k\in J,\ j\ne k && (8)
+    \end{aligned}`)}</div>
+    <p class="muted">(1) each customer has exactly one predecessor; (2) at most one successor, and there is no arc back to a depot, so routes are open; (3)&ndash;(5) open depots and fleet size; (6)&ndash;(7) arrival times, which also exclude cycles among customers; (8) vehicle capacity. A valid big-M is ${M('M=\\sum_{j\\in J}\\max_{u\\in V\\setminus\\{j\\}} c_{uj}')}. At an optimum ${M('t_j')} equals the arrival time of ${M('j')}, because the objective pushes every ${M('t_j')} down to its lower bound.</p>`,
 };
 
 const file = path.join(__dirname, '..', 'learn.html');
