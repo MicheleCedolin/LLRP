@@ -267,3 +267,20 @@ td.bad, td .bad { color: var(--bad); }
 .notation > div { display: flex; gap: .8rem; align-items: baseline; }
 .notation dt { min-width: 3.2rem; margin: 0; }
 .notation dd { margin: 0; }
+
+/* Guide for uploading own instance data */
+.tpl { margin: 12px 0 4px; border: 1px solid var(--line); border-radius: 8px; padding: 0 14px; background: var(--card); }
+.tpl > summary { cursor: pointer; padding: 10px 0; font-weight: 600; }
+.tpl[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 10px; }
+.tpl p { font-size: 14px; margin: 8px 0; max-width: 78ch; }
+.tpl-scroll { overflow-x: auto; margin: 8px 0; }
+.tpl-table { border-collapse: collapse; font-size: 14px; width: 100%; }
+.tpl-table th, .tpl-table td { text-align: left; padding: 5px 10px 5px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tpl-table th { color: var(--muted); font-weight: 600; font-size: 13px; }
+.tpl-table td:last-child { color: var(--muted); white-space: nowrap; }
+.tpl-label { color: var(--muted); font-size: 13px; margin-bottom: 4px; }
+.tpl-example { margin: 0 0 10px; padding: 10px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto;
+  font: 12.5px/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; white-space: pre; }
+.tpl-actions { gap: 10px; margin-bottom: 8px; }
+.tpl-tips { font-size: 13.5px; color: var(--muted); padding-left: 1.2rem; margin: 6px 0 12px; max-width: 78ch; }
+.tpl-tips code { font-size: 12.5px; }

@@ -92,6 +92,12 @@
   }
 
   // ---------- instance handling ----------
+  const EXAMPLE_NAME = 'Demo-8';
+  const EXAMPLE_INST = [
+    'LLRP_INSTANCE 1', 'name Demo-8', 'n 8', 'm 3', 'Q 20', 'Nv 3', 'Ng 2',
+    'depots', '10 10', '50 10', '30 50',
+    'customers', '12 25 5', '18 40 8', '35 30 6', '42 22 7', '55 35 9', '28 18 4', '8 45 6', '47 48 5',
+  ].join('\n') + '\n';
   function parseInstance(text) {
     const lines = text.split(/\r?\n/).map((s) => s.trim());
     if (!/^LLRP_INSTANCE\b/.test(lines[0] || '')) return { error: 'The first line must be "LLRP_INSTANCE 1".' };
@@ -108,6 +114,10 @@
     if (i >= lines.length) return { error: 'Missing "depots" section.' };
     const n = parseInt(head.n, 10), m = parseInt(head.m, 10), Q = parseFloat(head.Q);
     if (!(n > 0) || !(m > 0) || !(Q > 0)) return { error: 'The header must give positive n, m and Q.' };
+    const NvH = parseInt(head.Nv, 10), NgH = parseInt(head.Ng, 10);
+    if (!(NvH > 0)) return { error: 'The header needs a line "Nv" with the number of vehicles, for example "Nv 3".' };
+    if (!(NgH > 0)) return { error: 'The header needs a line "Ng" with the maximum number of open depots, for example "Ng 2".' };
+    if (NgH > m) return { error: 'Ng (maximum open depots, ' + NgH + ') cannot be larger than m (' + m + ').' };
     let depots = 0, customers = 0, section = 'depots';
     const geoDep = [], geoCus = [];
     for (i = i + 1; i < lines.length; i++) {
@@ -124,6 +134,16 @@
     }
     if (depots !== m) return { error: 'Expected ' + m + ' depot lines, found ' + depots + '.' };
     if (customers !== n) return { error: 'Expected ' + n + ' customer lines, found ' + customers + '.' };
+    let totalDemand = 0;
+    for (let k = 0; k < geoCus.length; k++) {
+      const dem = geoCus[k][2];
+      if (dem < 0) return { error: 'Customer ' + (k + 1) + ' has a negative demand (' + dem + ').' };
+      if (dem > Q) return { error: 'Customer ' + (k + 1) + ' has demand ' + dem + ', larger than the vehicle capacity Q = ' + Q + '. No vehicle can serve it.' };
+      totalDemand += dem;
+    }
+    if (totalDemand > NvH * Q) {
+      return { error: 'Total demand ' + totalDemand + ' is larger than Nv x Q = ' + (NvH * Q) + '. Increase Nv or Q.' };
+    }
     const bks = parseFloat(head.bks);
     return {
       rec: {
@@ -784,6 +804,19 @@
       };
       reader.onerror = () => setMsg('Could not read the file.', true);
       reader.readAsText(file);
+    });
+
+    const exBox = $('tpl-example');
+    if (exBox) exBox.textContent = EXAMPLE_INST;
+    const dl = $('tpl-download');
+    if (dl) dl.addEventListener('click', () => download('llrp_template.inst', EXAMPLE_INST, 'text/plain'));
+    const useEx = $('tpl-use');
+    if (useEx) useEx.addEventListener('click', () => {
+      const r = parseInstance(EXAMPLE_INST);
+      if (r.error) { setMsg(r.error, true); return; }
+      $('inst-file').value = '';
+      selectInstanceRec(Object.assign({ file: EXAMPLE_NAME + '.inst' }, r.rec));
+      setMsg('Loaded the example: ' + r.rec.n + ' customers, ' + r.rec.m + ' depots. Scroll down to choose a heuristic and run.', false);
     });
 
     $('algo-select').addEventListener('change', (e) => selectAlgo(e.target.value));

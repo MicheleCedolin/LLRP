@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LLRP Solver</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=20261118b">
 </head>
 <body>
 <header class="top">
@@ -74,6 +74,38 @@
         <input type="file" id="inst-file" accept=".inst,text/plain">
       </label>
     </div>
+    <details class="tpl" id="tpl">
+      <summary>Using your own data? What the file should look like</summary>
+      <p>Use one plain-text file with the extension <code>.inst</code>. It has three parts: a header with the problem settings, the candidate depots and the customers. Distances are computed from the coordinates (Euclidean, not rounded), so no distance matrix is needed. Routes are open: a vehicle does not return to its depot.</p>
+      <div class="tpl-scroll">
+        <table class="tpl-table">
+          <thead><tr><th>Line</th><th>Meaning</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code> <em>text</em></td><td>A label for your instance</td><td>optional</td></tr>
+            <tr><td><code>n</code> <em>number</em></td><td>Number of customers</td><td>required</td></tr>
+            <tr><td><code>m</code> <em>number</em></td><td>Number of candidate depots</td><td>required</td></tr>
+            <tr><td><code>Q</code> <em>number</em></td><td>Vehicle capacity, in the same unit as the demands</td><td>required</td></tr>
+            <tr><td><code>Nv</code> <em>number</em></td><td>Number of vehicles available (maximum number of routes)</td><td>required</td></tr>
+            <tr><td><code>Ng</code> <em>number</em></td><td>Maximum number of depots that may be open</td><td>required</td></tr>
+            <tr><td><code>bks</code> <em>number</em></td><td>Best known total latency, if you have one; used for the gap</td><td>optional</td></tr>
+            <tr><td><code>depots</code></td><td>Then <em>m</em> lines, one per depot: <code>x y</code></td><td>required</td></tr>
+            <tr><td><code>customers</code></td><td>Then <em>n</em> lines, one per customer: <code>x y demand</code></td><td>required</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="tpl-label">Example: 8 customers, 3 candidate depots, 3 vehicles, at most 2 open depots</p>
+      <pre class="tpl-example" id="tpl-example" aria-label="Example instance file"></pre>
+      <div class="row tpl-actions">
+        <button type="button" class="btn" id="tpl-download">Download this template (.inst)</button>
+        <button type="button" class="btn ghost" id="tpl-use">Load this example</button>
+      </div>
+      <ul class="tpl-tips">
+        <li>Coordinates and demands may be whole numbers or decimals, in any unit. Customers and depots are numbered 1, 2, &hellip; in the order you list them.</li>
+        <li>Values can be separated by spaces or tabs, so columns copied from a spreadsheet can be pasted straight into the file.</li>
+        <li>Every demand must be at most <code>Q</code>, and the total demand must be at most <code>Nv</code> &times; <code>Q</code>; otherwise no feasible solution exists and the page says so.</li>
+        <li>The file is read in your browser and never uploaded. Maximum size 5 MB.</li>
+      </ul>
+    </details>
     <p class="msg" id="inst-msg" role="status"></p>
     <dl class="facts" id="inst-facts"></dl>
     <figure class="fig map-fig">
@@ -202,6 +234,6 @@
 
 </main>
 
-<script src="app.js"></script>
+<script src="app.js?v=20261118b"></script>
 </body>
 </html>
