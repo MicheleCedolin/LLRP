@@ -26,3 +26,6 @@ It must be served over HTTP(S); opening `index.html` from disk will not load the
 - `vendor/katex/`: KaTeX stylesheet and fonts (MIT; licence in `vendor/katex/LICENSE`).
 - `wasm/`: built with Emscripten; see `THIRD_PARTY_NOTICES.md`.
 - `data/`: benchmark instances by other researchers; sources are listed in section 6.3 of the Learn page.
+
+## License
+MIT License (file `LICENSE`) for the original code and text of this site. The benchmark data and third-party components are not covered by it.
