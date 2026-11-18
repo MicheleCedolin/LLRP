@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below. Please also cite the papers and the benchmark data sources listed on the Learn page (https://michelecedolin.github.io/LLRP/learn.html) and in DATA.md."
+type: software
+title: "LLRP Solver: latency location-routing heuristics in the browser"
+abstract: "A web application that runs metaheuristics for the latency location-routing problem (LLRP) in the browser (C++ compiled to WebAssembly). It includes 76 built-in benchmark instances with best known solutions, local-search operators, convergence and route views, and a Learn page with the model and the literature."
+authors:
+  - family-names: Cedolin
+    given-names: Michele
+repository-code: "https://github.com/MicheleCedolin/LLRP"
+url: "https://michelecedolin.github.io/LLRP/"
+keywords:
+  - latency location-routing problem
+  - location-routing
+  - metaheuristics
+  - combinatorial optimization
+  - WebAssembly

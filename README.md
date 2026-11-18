@@ -10,7 +10,7 @@ The solvers are written in C++ and compiled to WebAssembly, so everything runs l
 
 ## What you can do
 
-- Choose one of 76 built-in benchmark instances (Tuzun-Burke, Prodhon, Barreto) with their best known solutions, or upload your own `.inst` file. The app explains the file format and offers a template.
+- Choose one of 76 built-in benchmark instances (Tuzun-Burke, Prodhon, Barreto) with their best known solutions (sources in [DATA.md](DATA.md)), or upload your own `.inst` file. The app explains the file format and offers a template.
 - Pick one of 19 metaheuristics and the local-search operators, set seeds and a time limit, and see the gap to the best known solution, the routes and the convergence.
 - Read the Learn page for the problem definition, the mathematical model, the operators and the literature.
 
@@ -18,7 +18,7 @@ The solvers are written in C++ and compiled to WebAssembly, so everything runs l
 
 | Branch | Content |
 |---|---|
-| `main` | this README |
+| `main` | this README, `CITATION.cff`, `DATA.md` (data sources), `THIRD_PARTY_NOTICES.md` |
 | `gh-pages` | the published site: HTML, JavaScript, CSS, WebAssembly and benchmark data |
 
 ## Related repository
@@ -27,6 +27,12 @@ Research code (C++ engine, experiments, paper material): https://github.com/Mich
 
 ## How to cite
 
-If you use the app in your work, please cite this repository together with the papers listed on the Learn page (section 6):
+If you use the app in your work, please cite this repository together with the papers listed on the Learn page (section 6) and, if you use the built-in instances, their original sources ([DATA.md](DATA.md)):
 
 > Cedolin, M. (2026). *LLRP Solver: latency location-routing heuristics in the browser* [Web application]. https://github.com/MicheleCedolin/LLRP
+
+GitHub's "Cite this repository" button (right-hand sidebar) gives the same reference as BibTeX or APA, generated from [`CITATION.cff`](CITATION.cff).
+
+## Data and third-party components
+
+The benchmark instances were created by other researchers and are credited in [DATA.md](DATA.md); they are not covered by any licence granted for this project's own code and text. Third-party components that are bundled with the site are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
