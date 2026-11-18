@@ -21,3 +21,8 @@ It must be served over HTTP(S); opening `index.html` from disk will not load the
 - Costs are total latency. Gap to BKS = 100 (cost - BKS) / BKS.
 - Time estimates are indicative (roughly +/- 50%).
 - The web build reproduces the native command-line results for the same seed on the tested cases.
+
+## Third-party components and data
+- `vendor/katex/`: KaTeX stylesheet and fonts (MIT; licence in `vendor/katex/LICENSE`).
+- `wasm/`: built with Emscripten; see `THIRD_PARTY_NOTICES.md`.
+- `data/`: benchmark instances by other researchers; sources are listed in section 6.3 of the Learn page.
