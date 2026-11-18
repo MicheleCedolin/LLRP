@@ -704,10 +704,14 @@
     $('bar').style.width = (total ? (100 * done / total) : 0) + '%';
   }
 
+  // Anonymous usage count (GoatCounter): only the event name is sent, never instances, settings or results.
+  function track(name) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name, title: name, event: true }); } catch (e) { /* counting is optional */ } }
+
   async function run() {
     if (S.running) return;
     const plan = buildPlan();
     if (plan.error) { status(plan.error, true); return; }
+    track('solve-llrp');
     S.running = true;
     S.cancelled = false;
     S.results = [];
