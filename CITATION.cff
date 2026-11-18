@@ -8,6 +8,7 @@ authors:
     given-names: Michele
 repository-code: "https://github.com/MicheleCedolin/LLRP"
 url: "https://michelecedolin.github.io/LLRP/"
+license: MIT
 keywords:
   - latency location-routing problem
   - location-routing

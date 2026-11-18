@@ -18,7 +18,7 @@ The solvers are written in C++ and compiled to WebAssembly, so everything runs l
 
 | Branch | Content |
 |---|---|
-| `main` | this README, `CITATION.cff`, `DATA.md` (data sources), `THIRD_PARTY_NOTICES.md` |
+| `main` | this README, `LICENSE`, `CITATION.cff`, `DATA.md` (data sources), `THIRD_PARTY_NOTICES.md` |
 | `gh-pages` | the published site: HTML, JavaScript, CSS, WebAssembly and benchmark data |
 
 ## Related repository
@@ -35,4 +35,8 @@ GitHub's "Cite this repository" button (right-hand sidebar) gives the same refer
 
 ## Data and third-party components
 
-The benchmark instances were created by other researchers and are credited in [DATA.md](DATA.md); they are not covered by any licence granted for this project's own code and text. Third-party components that are bundled with the site are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+The benchmark instances were created by other researchers and are credited in [DATA.md](DATA.md); they are not covered by this project's licence. Third-party components that are bundled with the site are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+## License
+
+The original code and text of this project are released under the [MIT License](LICENSE). The benchmark data ([DATA.md](DATA.md)) and third-party components ([THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)) are not covered by it.
