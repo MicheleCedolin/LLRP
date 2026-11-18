@@ -6,7 +6,7 @@ Latency location-routing heuristics that run in your browser.
 
 The latency location-routing problem (LLRP) asks which depots to open (at most *p*) and how to route vehicles from them to customers so that the **sum of customer arrival times** is as small as possible. Routes are open: a vehicle does not return to its depot.
 
-The solvers are written in C++ and compiled to WebAssembly, so everything runs locally in your browser. Nothing is installed and no data is sent to a server.
+The solvers are written in C++ and compiled to WebAssembly, so everything runs locally in your browser. Nothing is installed and no instance data is sent to a server; the live page only reports two anonymous counts (page opened, run started) to GoatCounter.
 
 ## What you can do
 
