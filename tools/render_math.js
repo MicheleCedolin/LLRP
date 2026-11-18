@@ -7,7 +7,7 @@ const M = t => katex.renderToString(t, { throwOnError: true, displayMode: false 
 const D = t => katex.renderToString(t, { throwOnError: true, displayMode: true });
 
 const BLOCKS = {
-  objective: () => `<div class="math-box">${D('\\min \; \\sum_{j\\in J} T_j')}</div>`,
+  objective: () => `<div class="math-box">${D(String.raw`\min\;\sum_{j\in J} T_j`)}</div>`,
   objnote: () => `where ${M('T_j')} is the arrival time of customer ${M('j')}, measured from the start of its depot's route.`,
   notation: () => `
     <dl class="notation">
@@ -20,7 +20,7 @@ const BLOCKS = {
       <div><dt>${M('N_v')}</dt><dd>fleet size (maximum number of routes)</dd></div>
     </dl>
     <p><strong>Routes and arrival times.</strong> A solution is a set ${M('R')} of routes. A route is ${M('r=(d_r,\\,j^r_1,\\dots,j^r_{k_r})')} with depot ${M('d_r\\in I')}, customers ${M('j^r_s\\in J')} and ${M('k_r\\ge 1')}. Writing ${M('j^r_0:=d_r')}, the arrival time of the ${M('s')}-th customer is the sum of the arcs travelled so far; the arc back to the depot is not included.</p>
-    <div class="math-box">${D('T_{j^r_s}\;=\;\\sum_{u=1}^{s} c_{\\,j^r_{u-1}\\,j^r_u}')}</div>
+    <div class="math-box">${D(String.raw`T_{j^r_s}\;=\;\sum_{u=1}^{s} c_{\,j^r_{u-1}\,j^r_u}`)}</div>
     <p><strong>Model.</strong> With ${M('J_r=\\{j^r_1,\\dots,j^r_{k_r}\\}')}:</p>
     <div class="math-box">${D(String.raw`\min\;\sum_{r\in R}\sum_{s=1}^{k_r} T_{j^r_s}\;=\;\sum_{r\in R}\sum_{s=1}^{k_r}(k_r-s+1)\,c_{\,j^r_{s-1}\,j^r_s}`)}${D(String.raw`\begin{aligned}
       &\{J_r\}_{r\in R}\ \text{is a partition of } J && \text{(each customer is visited once)}\\
