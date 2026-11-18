@@ -20,9 +20,6 @@ The solvers are written in C++ and compiled to WebAssembly, so everything runs l
 |---|---|
 | `main` | this README |
 | `gh-pages` | the published site: HTML, JavaScript, CSS, WebAssembly and benchmark data |
-| `irace-tuning` | irace parameter-tuning kit for the fast solver, with its GitHub Actions workflow |
-| `validation` | held-out validation workflow (tuned configurations against native metaheuristics) |
-| `validation-results` | raw results of validation run 43879606749 |
 
 ## Related repository
 
